@@ -1,0 +1,145 @@
+<!-- ======= Footer ======= -->
+<footer id="footer">
+  <div class="footer-top">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-4 col-md-6">
+          <div class="footer-info">
+            <h3>Heritage App</h3>
+            <p class="pb-3"><em>Just upload your image and the system will automatically work for you.</em>
+            </p>
+            <p>
+              123 Kanto Tiño Street <br>
+              Quezon City, Philippines<br><br>
+              <strong>Phone:</strong> +63 912 345 6789<br>
+              <strong>Email:</strong> capstone.project@gmail.com<br>
+            </p>
+            <div class="social-links mt-3">
+              <a href="#" class="twitter"><i class="bx bxl-twitter"></i></a>
+              <a href="#" class="facebook"><i class="bx bxl-facebook"></i></a>
+              <a href="#" class="instagram"><i class="bx bxl-instagram"></i></a>
+              <a href="#" class="google-plus"><i class="bx bxl-skype"></i></a>
+              <a href="#" class="linkedin"><i class="bx bxl-linkedin"></i></a>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-2 col-md-6 footer-links">
+          <h4>Useful Links</h4>
+          <ul>
+            <li><i class="bx bx-chevron-right"></i> <a href="#hero">Home</a></li>
+            <li><i class="bx bx-chevron-right"></i> <a href="#about">About the Project</a></li>
+            <li><i class="bx bx-chevron-right"></i> <a href="#contact">Contact</a></li>
+          </ul>
+        </div>
+
+        <div class="col-lg-2 col-md-6 footer-links">
+          <h4>Our Services</h4>
+          <ul>
+            <li><i class="bx bx-chevron-right"></i> <a href="javascript:void(0)">Machine Learning</a></li>
+            <li><i class="bx bx-chevron-right"></i> <a href="javascript:void(0)">Object Detection</a></li>
+            <li><i class="bx bx-chevron-right"></i> <a href="javascript:void(0)">Artificial Intelligence</a></li>
+            <li><i class="bx bx-chevron-right"></i> <a href="javascript:void(0)">Algorithm</a></li>
+          </ul>
+        </div>
+
+        <div class="col-lg-4 col-md-6 footer-newsletter">
+          <h4>Our Newsletter</h4>
+          <p>Subscribe to get the latest update of the app.</p>
+          <form action="javascript:void(0)">
+            <input type="email" name="email"><input type="submit" value="Subscribe">
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="copyright">
+      &copy; Copyright <strong><span>Heritage App</span></strong>. All Rights Reserved
+    </div>
+  </div>
+</footer>
+<!-- End Footer -->
+
+<a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i
+    class="bi bi-arrow-up-short"></i></a>
+<div id="preloader"></div>
+
+<!-- Vendor JS Files -->
+<script src="{{ url_for('static', filename='assets/vendor/purecounter/purecounter_vanilla.js') }}"></script>
+<script src="{{ url_for('static', filename='assets/vendor/aos/aos.js') }}"></script>
+<script src="{{ url_for('static', filename='assets/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+<script src="{{ url_for('static', filename='assets/vendor/glightbox/js/glightbox.min.js') }}"></script>
+<script src="{{ url_for('static', filename='assets/vendor/swiper/swiper-bundle.min.js') }}"></script>
+
+<!-- Template Main JS File -->
+<script src="{{ url_for('static', filename='assets/js/main.js') }}"></script>
+
+<script>
+  var currentPageUrl = window.location.href;
+  var path = currentPageUrl.substring(currentPageUrl.lastIndexOf('/') + 1);
+
+  var header = document.getElementById("header");
+  var home = document.getElementById("nav_home");
+  var about = document.getElementById("nav_about");
+  var contact = document.getElementById("nav_contact");
+  var detect = document.getElementById("nav_detect");
+
+  var imageInput = document.getElementById("fileInput");
+  var previewImage = document.getElementById("previewImage");
+  var result_form = document.getElementById("result_form");
+  var result_submit = document.getElementById("result_submit");
+
+  var resultImage = document.getElementById("result-image");
+
+  if (path == "detect" || path == "result") {
+    header.classList.remove("header-transparent");
+    home.classList.remove("active");
+    detect.classList.add("active");
+
+    home.setAttribute("href", "/");
+    about.setAttribute("href", "/#about");
+    contact.setAttribute("href", "/#contact");
+  }
+  else {
+    header.classList.add("header-transparent");
+    home.classList.add("active");
+    detect.classList.remove("active");
+
+    home.setAttribute("href", "#hero");
+    about.setAttribute("href", "#about");
+    contact.setAttribute("href", "#contact");
+  }
+
+  if (path == "detect") {
+    imageInput.addEventListener("change", function () {
+      if (imageInput.files && imageInput.files[0]) {
+        var reader = new FileReader();
+
+        reader.onload = function (e) {
+          previewImage.src = e.target.result;
+        };
+
+        reader.readAsDataURL(imageInput.files[0]);
+      }
+    });
+
+    result_form.addEventListener("submit", function () {
+      // imageInput.disabled = true;
+      result_submit.disabled = true;
+      result_submit.textContent = "Please Wait...";
+    });
+  }
+
+  if (path == "result") {
+    if (resultImage) {
+      var currentWidth = resultImage.offsetWidth;
+
+      resultImage.style.height = currentWidth + "px";
+    }
+  }
+</script>
+</body>
+
+</html>

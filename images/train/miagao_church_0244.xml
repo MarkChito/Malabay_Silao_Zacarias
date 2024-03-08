@@ -1,0 +1,26 @@
+<annotation>
+	<folder>all</folder>
+	<filename>miagao_church_0244.jpg</filename>
+	<path>C:\Users\00ant\Desktop\images\all\miagao_church_0244.jpg</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>500</width>
+		<height>500</height>
+		<depth>1</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>Miagao Church</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>74</xmin>
+			<ymin>32</ymin>
+			<xmax>412</xmax>
+			<ymax>481</ymax>
+		</bndbox>
+	</object>
+</annotation>

@@ -1,0 +1,50 @@
+item {
+  id: 1
+  name: 'Barasoain Church'
+}
+
+item {
+  id: 2
+  name: 'Daraga Church'
+}
+
+item {
+  id: 3
+  name: 'Manaoag Church'
+}
+
+item {
+  id: 4
+  name: 'Manila Cathedral Church'
+}
+
+item {
+  id: 5
+  name: 'Paoay Church'
+}
+
+item {
+  id: 6
+  name: 'Quiapo Church'
+}
+
+item {
+  id: 7
+  name: 'San Agustin Church'
+}
+
+item {
+  id: 8
+  name: 'Sto. Nino Basilica Church'
+}
+
+item {
+  id: 9
+  name: 'Taal Basilica Church'
+}
+
+item {
+  id: 10
+  name: 'Miagao Church'
+}
+

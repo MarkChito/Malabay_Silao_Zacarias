@@ -1,0 +1,35 @@
+{% include 'includes/header.html' %}
+
+<main id="main">
+    <!-- ======= Breadcrumbs Section ======= -->
+    <section class="breadcrumbs">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2>Image Detection App</h2>
+                <ol>
+                    <li><a href="/">Home</a></li>
+                    <li>Image Detection App</li>
+                </ol>
+            </div>
+        </div>
+    </section>
+    <!-- End Breadcrumbs Section -->
+
+    <section class="inner-page py-4">
+        <div class="container">
+            <form action="/result" method="post" enctype="multipart/form-data" id="result_form">
+                <div class="w-100 text-center mb-4">
+                    <img src="{{ url_for('static', filename='assets/img/no-image.png') }}" id="previewImage" style="width: 300px; height: 300px;" alt="" class="img-thumbnail">
+                </div>
+                <div class="mb-3">
+                    <label for="fileInput" class="form-label">Choose an image:</label>
+                    <input type="file" class="form-control" id="fileInput" name="file" accept=".jpg, .jpeg, .png"
+                        required>
+                </div>
+                <button type="submit" class="btn btn-primary w-100" id="result_submit">Upload and Detect</button>
+            </form>
+        </div>
+    </section>
+</main>
+
+{% include 'includes/footer.html' %}

@@ -1,0 +1,26 @@
+<annotation>
+	<folder>all</folder>
+	<filename>taal_basilica_church_0389.jpg</filename>
+	<path>C:\Users\00ant\Desktop\images\all\taal_basilica_church_0389.jpg</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>500</width>
+		<height>500</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>Taal Basilica Church</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>5</xmin>
+			<ymin>4</ymin>
+			<xmax>490</xmax>
+			<ymax>497</ymax>
+		</bndbox>
+	</object>
+</annotation>

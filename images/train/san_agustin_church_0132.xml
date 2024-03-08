@@ -1,0 +1,26 @@
+<annotation>
+	<folder>all</folder>
+	<filename>san_agustin_church_0132.jpg</filename>
+	<path>C:\Users\00ant\Desktop\images\all\san_agustin_church_0132.jpg</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>500</width>
+		<height>500</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>San Agustin Church</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>98</xmin>
+			<ymin>14</ymin>
+			<xmax>350</xmax>
+			<ymax>456</ymax>
+		</bndbox>
+	</object>
+</annotation>
