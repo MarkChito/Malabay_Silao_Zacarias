@@ -93,7 +93,7 @@
 
   var resultImage = document.getElementById("result-image");
 
-  if (path == "detect" || path == "result") {
+  if (path == "detect" || path == "result" || path == "unlisted_images") {
     header.classList.remove("header-transparent");
     home.classList.remove("active");
     detect.classList.add("active");
@@ -110,6 +110,11 @@
     home.setAttribute("href", "#hero");
     about.setAttribute("href", "#about");
     contact.setAttribute("href", "#contact");
+  }
+
+  if (path == "unlisted_images")
+  {
+    detect.classList.remove("active");
   }
 
   if (path == "detect") {

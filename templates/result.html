@@ -25,7 +25,7 @@
                         {% for detection in detections %}
                         <div class="detection-label" style="top: 3px; left: 3px;">
                             <strong>{{ detection.object_name }}</strong><br>
-                            Confidence: {{ detection.confidence|round(3) * 100 }}%<br>
+                            Confidence: {{ detection.confidence|round(4) * 100 }}%<br>
                         </div>
                         {% endfor %}
                     </div>
@@ -39,7 +39,7 @@
                             Object Name: <strong>{{ detection.object_name }}</strong>
                         </li>
                         <li>
-                            Confidence Level: <strong>{{ detection.confidence|round(3) * 100 }}%</strong>
+                            Confidence Level: <strong>{{ detection.confidence|round(4) * 100 }}%</strong>
                         </li>
                         <li>
                             Horizontal Boundary Min: <strong>{{ detection.xmin }}</strong>
@@ -62,7 +62,12 @@
                     </ul>
 
 
-                    <a href="/detect" class="btn btn-primary mt-3 w-100">Back to Image Detection</a>
+                    <a href="/detect" class="btn btn-primary mt-3 w-100">Detect Another Image</a>
+
+                    <p class="mt-3">
+                        Is this wrong?
+                        <a href="/unlisted_images?{{ image_filename }}">Add to Unlisted Images</a>
+                    </p>
                 </div>
             </div>
         </div>

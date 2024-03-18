@@ -1,0 +1,48 @@
+{% include 'includes/header.html' %}
+
+<main id="main">
+    <!-- ======= Breadcrumbs Section ======= -->
+    <section class="breadcrumbs">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2>Unlisted Images</h2>
+                <ol>
+                    <li><a href="/">Home</a></li>
+                    <li>Unlisted Images</li>
+                </ol>
+            </div>
+        </div>
+    </section>
+    <!-- End Breadcrumbs Section -->
+
+    <section class="inner-page py-4">
+        <div class="container">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Object Name</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if data %}
+                    {% for single_data in data %}
+                    <tr>
+                        <th scope="row">{{ single_data.id }}</th>
+                        <td>{{ single_data.object_name }}</td>
+                    </tr>
+                    {% endfor %}
+                    {% else %}
+                    <tr>
+                        <th class="text-center text-muted" colspan="4">
+                            <h1 class="py-5">No Data Available</h1>
+                        </th>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+
+{% include 'includes/footer.html' %}
