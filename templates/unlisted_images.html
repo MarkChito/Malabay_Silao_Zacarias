@@ -1,15 +1,23 @@
 {% include 'includes/header.html' %}
-
 <main id="main">
     <!-- ======= Breadcrumbs Section ======= -->
     <section class="breadcrumbs">
         <div class="container">
             <div class="d-flex justify-content-between align-items-center">
-                <h2>Unlisted Images</h2>
-                <ol>
-                    <li><a href="/">Home</a></li>
-                    <li>Unlisted Images</li>
-                </ol>
+                <div class="row w-100 mt-lg-0 mt-3">
+                    <div class="col-10">
+                        <h2>Unlisted Images</h2>
+                    </div>
+                    <div class="col-2">
+                        <button class="btn btn-primary float-end d-lg-block d-none" id="btn_list_new_image" data-bs-toggle="modal" data-bs-target="#list_new_image">
+                            <i class="fa fa-plus me-1"></i>
+                            List New Image
+                        </button>
+                        <button class="btn btn-primary float-end d-lg-none d-block" id="btn_list_new_image" data-bs-toggle="modal" data-bs-target="#list_new_image">
+                            <i class="fa fa-plus"></i>
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
@@ -22,6 +30,7 @@
                     <tr>
                         <th scope="col">#</th>
                         <th scope="col">Object Name</th>
+                        <th scope="col" class="text-center">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -30,11 +39,16 @@
                     <tr>
                         <th scope="row">{{ single_data.id }}</th>
                         <td>{{ single_data.object_name }}</td>
+                        <td class="text-center">
+                            <i class="fa fa-eye text-success me-2" role="button" title="View Images"></i>
+                            <i class="fa fa-edit text-primary me-2" role="button" title="Edit Folder Name"></i>
+                            <i class="fa fa-trash text-danger" role="button" title="Remove Folder"></i>
+                        </td>
                     </tr>
                     {% endfor %}
                     {% else %}
                     <tr>
-                        <th class="text-center text-muted" colspan="4">
+                        <th class="text-center text-muted" colspan="3">
                             <h1 class="py-5">No Data Available</h1>
                         </th>
                     </tr>
@@ -44,5 +58,4 @@
         </div>
     </section>
 </main>
-
 {% include 'includes/footer.html' %}

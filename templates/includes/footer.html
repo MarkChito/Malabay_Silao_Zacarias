@@ -62,9 +62,44 @@
 </footer>
 <!-- End Footer -->
 
-<a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i
-    class="bi bi-arrow-up-short"></i></a>
+<a href="#" class="back-to-top d-flex align-items-center justify-content-center">
+  <i class="bi bi-arrow-up-short"></i>
+</a>
+
 <div id="preloader"></div>
+
+<!-- List New Image Modal -->
+<div class="modal fade" id="list_new_image" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">List New Image</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form action="/unlisted_images" method="POST" enctype="multipart/form-data" id="list_new_image_form">
+        <div class="modal-body">
+          <div class="w-100 text-center">
+            <img id="imagePreview" src="{{ url_for('static', filename='assets/img/no-image.png') }}" alt="Image Preview"
+              style="width: 250px; height: 250px;" class="img-thumbnail mb-2">
+          </div>
+
+          <div class="mb-3 w-100 d-flex justify-content-center">
+            <input type="file" class="form-control" id="imageInput" name="object_image" accept="image/*" style="width: 250px;" required>
+          </div>
+
+          <div>
+            <label for="list_new_image_object_name" class="form-label">Object Name</label>
+            <input type="text" class="form-control" id="list_new_image_object_name" name="object_name" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary" id="list_new_image_submit">Submit</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 
 <!-- Vendor JS Files -->
 <script src="{{ url_for('static', filename='assets/vendor/purecounter/purecounter_vanilla.js') }}"></script>
@@ -78,25 +113,30 @@
 
 <script>
   var currentPageUrl = window.location.href;
-  var path = currentPageUrl.substring(currentPageUrl.lastIndexOf('/') + 1);
+  var url = new URL(currentPageUrl);
+  var path = url.pathname.substring(1);
 
   var header = document.getElementById("header");
   var home = document.getElementById("nav_home");
   var about = document.getElementById("nav_about");
   var contact = document.getElementById("nav_contact");
   var detect = document.getElementById("nav_detect");
+  var unlisted_images = document.getElementById("nav_unlisted_images");
 
   var imageInput = document.getElementById("fileInput");
   var previewImage = document.getElementById("previewImage");
   var result_form = document.getElementById("result_form");
   var result_submit = document.getElementById("result_submit");
 
+  var list_new_image_object_name = document.getElementById("list_new_image_object_name");
+  var list_new_image_submit = document.getElementById("list_new_image_submit");
+  var list_new_image_form = document.getElementById("list_new_image_form");
+
   var resultImage = document.getElementById("result-image");
 
   if (path == "detect" || path == "result" || path == "unlisted_images") {
     header.classList.remove("header-transparent");
     home.classList.remove("active");
-    detect.classList.add("active");
 
     home.setAttribute("href", "/");
     about.setAttribute("href", "/#about");
@@ -106,18 +146,29 @@
     header.classList.add("header-transparent");
     home.classList.add("active");
     detect.classList.remove("active");
+    unlisted_images.classList.remove("active");
 
     home.setAttribute("href", "#hero");
     about.setAttribute("href", "#about");
     contact.setAttribute("href", "#contact");
   }
 
-  if (path == "unlisted_images")
-  {
+  if (path == "unlisted_images") {
     detect.classList.remove("active");
+    unlisted_images.classList.add("active");
+
+    list_new_image_form.addEventListener("submit", function () {
+      list_new_image_object_name.disabled = true;
+
+      list_new_image_submit.disabled = true;
+      list_new_image_submit.textContent = "Please Wait...";
+    });
   }
 
   if (path == "detect") {
+    detect.classList.add("active");
+    unlisted_images.classList.remove("active");
+
     imageInput.addEventListener("change", function () {
       if (imageInput.files && imageInput.files[0]) {
         var reader = new FileReader();
@@ -131,7 +182,6 @@
     });
 
     result_form.addEventListener("submit", function () {
-      // imageInput.disabled = true;
       result_submit.disabled = true;
       result_submit.textContent = "Please Wait...";
     });
@@ -144,6 +194,24 @@
       resultImage.style.height = currentWidth + "px";
     }
   }
+
+  document.getElementById('imageInput').addEventListener('change', function (event) {
+    var input = event.target;
+    var imgElement = document.getElementById('imagePreview');
+
+    if (!input.files || !input.files[0]) {
+      imgElement.src = "{{ url_for('static', filename='assets/img/no-image.png') }}";
+    }
+    else {
+      var reader = new FileReader();
+
+      reader.onload = function () {
+        imgElement.src = reader.result;
+      };
+
+      reader.readAsDataURL(input.files[0]);
+    }
+  });
 </script>
 </body>
 

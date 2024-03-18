@@ -68,14 +68,18 @@ def detect():
 def unlisted_images():
     if request.method == "POST":
         post_object_name = request.form["object_name"]
+        file = request.files['object_image']
 
         new_data = My_Database(object_name=post_object_name)
+
+        image_path = os.path.join('static/uploads/temp', file.filename)
+        file.save(image_path)
 
         try:
             db.session.add(new_data)
             db.session.commit()
 
-            copy_image(post_object_name, "daraga_church_0011.jpg")
+            copy_image(post_object_name, file.filename)
 
             return redirect("/unlisted_images")
         except:
@@ -174,7 +178,7 @@ def copy_image(filename, filepath):
 
     image_count += 1
     new_image_name = f"image_{image_count:04d}.jpg"
-    shutil.copy("static/uploads/" + filepath, os.path.join(folder_path, new_image_name))
+    shutil.copy("static/uploads/temp/" + filepath, os.path.join(folder_path, new_image_name))
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=3000, debug=True)
