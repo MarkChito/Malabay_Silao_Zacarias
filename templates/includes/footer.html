@@ -80,11 +80,11 @@
         <div class="modal-body">
           <div class="w-100 text-center">
             <img id="imagePreview" src="{{ url_for('static', filename='assets/img/no-image.png') }}" alt="Image Preview"
-              style="width: 250px; height: 250px;" class="img-thumbnail mb-2">
+              style="width: 100%;" class="img-thumbnail mb-2">
           </div>
 
           <div class="mb-3 w-100 d-flex justify-content-center">
-            <input type="file" class="form-control" id="imageInput" name="object_image" accept="image/*" style="width: 250px;" required>
+            <input type="file" class="form-control" id="imageInput" name="object_image" accept="image/*" required>
           </div>
 
           <div>
@@ -107,111 +107,120 @@
 <script src="{{ url_for('static', filename='assets/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
 <script src="{{ url_for('static', filename='assets/vendor/glightbox/js/glightbox.min.js') }}"></script>
 <script src="{{ url_for('static', filename='assets/vendor/swiper/swiper-bundle.min.js') }}"></script>
+<script src="{{ url_for('static', filename='assets/vendor/jquery/jquery-3.7.1.js') }}"></script>
 
 <!-- Template Main JS File -->
 <script src="{{ url_for('static', filename='assets/js/main.js') }}"></script>
 
 <script>
-  var currentPageUrl = window.location.href;
-  var url = new URL(currentPageUrl);
-  var path = url.pathname.substring(1);
+  $(document).ready(function () {
+    var currentPageUrl = window.location.href;
+    var url = new URL(currentPageUrl);
+    var path = url.pathname.substring(1);
 
-  var header = document.getElementById("header");
-  var home = document.getElementById("nav_home");
-  var about = document.getElementById("nav_about");
-  var contact = document.getElementById("nav_contact");
-  var detect = document.getElementById("nav_detect");
-  var unlisted_images = document.getElementById("nav_unlisted_images");
+    var header = document.getElementById("header");
+    var home = document.getElementById("nav_home");
+    var about = document.getElementById("nav_about");
+    var contact = document.getElementById("nav_contact");
+    var detect = document.getElementById("nav_detect");
+    var unlisted_images = document.getElementById("nav_unlisted_images");
 
-  var imageInput = document.getElementById("fileInput");
-  var previewImage = document.getElementById("previewImage");
-  var result_form = document.getElementById("result_form");
-  var result_submit = document.getElementById("result_submit");
+    var imageInput = document.getElementById("fileInput");
+    var previewImage = document.getElementById("previewImage");
+    var result_form = document.getElementById("result_form");
+    var result_submit = document.getElementById("result_submit");
 
-  var list_new_image_object_name = document.getElementById("list_new_image_object_name");
-  var list_new_image_submit = document.getElementById("list_new_image_submit");
-  var list_new_image_form = document.getElementById("list_new_image_form");
+    var list_new_image_object_name = document.getElementById("list_new_image_object_name");
+    var list_new_image_submit = document.getElementById("list_new_image_submit");
+    var list_new_image_form = document.getElementById("list_new_image_form");
 
-  var resultImage = document.getElementById("result-image");
+    var resultImage = document.getElementById("result-image");
 
-  if (path == "detect" || path == "result" || path == "unlisted_images") {
-    header.classList.remove("header-transparent");
-    home.classList.remove("active");
+    if (path == "detect" || path == "result" || path == "unlisted_images" || path == "view_images") {
+      header.classList.remove("header-transparent");
+      home.classList.remove("active");
 
-    home.setAttribute("href", "/");
-    about.setAttribute("href", "/#about");
-    contact.setAttribute("href", "/#contact");
-  }
-  else {
-    header.classList.add("header-transparent");
-    home.classList.add("active");
-    detect.classList.remove("active");
-    unlisted_images.classList.remove("active");
-
-    home.setAttribute("href", "#hero");
-    about.setAttribute("href", "#about");
-    contact.setAttribute("href", "#contact");
-  }
-
-  if (path == "unlisted_images") {
-    detect.classList.remove("active");
-    unlisted_images.classList.add("active");
-
-    list_new_image_form.addEventListener("submit", function () {
-      list_new_image_object_name.disabled = true;
-
-      list_new_image_submit.disabled = true;
-      list_new_image_submit.textContent = "Please Wait...";
-    });
-  }
-
-  if (path == "detect") {
-    detect.classList.add("active");
-    unlisted_images.classList.remove("active");
-
-    imageInput.addEventListener("change", function () {
-      if (imageInput.files && imageInput.files[0]) {
-        var reader = new FileReader();
-
-        reader.onload = function (e) {
-          previewImage.src = e.target.result;
-        };
-
-        reader.readAsDataURL(imageInput.files[0]);
-      }
-    });
-
-    result_form.addEventListener("submit", function () {
-      result_submit.disabled = true;
-      result_submit.textContent = "Please Wait...";
-    });
-  }
-
-  if (path == "result") {
-    if (resultImage) {
-      var currentWidth = resultImage.offsetWidth;
-
-      resultImage.style.height = currentWidth + "px";
-    }
-  }
-
-  document.getElementById('imageInput').addEventListener('change', function (event) {
-    var input = event.target;
-    var imgElement = document.getElementById('imagePreview');
-
-    if (!input.files || !input.files[0]) {
-      imgElement.src = "{{ url_for('static', filename='assets/img/no-image.png') }}";
+      home.setAttribute("href", "/");
+      about.setAttribute("href", "/#about");
+      contact.setAttribute("href", "/#contact");
     }
     else {
-      var reader = new FileReader();
+      header.classList.add("header-transparent");
+      home.classList.add("active");
+      detect.classList.remove("active");
+      unlisted_images.classList.remove("active");
 
-      reader.onload = function () {
-        imgElement.src = reader.result;
-      };
-
-      reader.readAsDataURL(input.files[0]);
+      home.setAttribute("href", "#hero");
+      about.setAttribute("href", "#about");
+      contact.setAttribute("href", "#contact");
     }
-  });
+
+    if (path == "unlisted_images") {
+      detect.classList.remove("active");
+      unlisted_images.classList.add("active");
+
+      list_new_image_form.addEventListener("submit", function () {
+        list_new_image_submit.disabled = true;
+        list_new_image_submit.textContent = "Please Wait...";
+      });
+    }
+
+    if (path == "detect") {
+      detect.classList.add("active");
+      unlisted_images.classList.remove("active");
+
+      imageInput.addEventListener("change", function () {
+        if (imageInput.files && imageInput.files[0]) {
+          var reader = new FileReader();
+
+          reader.onload = function (e) {
+            previewImage.src = e.target.result;
+          };
+
+          reader.readAsDataURL(imageInput.files[0]);
+        }
+      });
+
+      result_form.addEventListener("submit", function () {
+        result_submit.disabled = true;
+        result_submit.textContent = "Please Wait...";
+      });
+    }
+
+    if (path == "result") {
+      if (resultImage) {
+        var currentWidth = resultImage.offsetWidth;
+
+        resultImage.style.height = currentWidth + "px";
+      }
+    }
+
+    document.getElementById('imageInput').addEventListener('change', function (event) {
+      var input = event.target;
+      var imgElement = document.getElementById('imagePreview');
+
+      if (!input.files || !input.files[0]) {
+        imgElement.src = "{{ url_for('static', filename='assets/img/no-image.png') }}";
+      }
+      else {
+        var reader = new FileReader();
+
+        reader.onload = function () {
+          imgElement.src = reader.result;
+        };
+
+        reader.readAsDataURL(input.files[0]);
+      }
+    });
+  
+    $(".view_images").click(function(){
+      var folder_name = $(this).attr("folder_name");
+
+      $('#folder_name').val(folder_name);
+
+      $('#view_images_form').submit();
+    })
+  })
 </script>
 </body>
 

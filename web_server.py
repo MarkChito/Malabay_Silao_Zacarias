@@ -64,36 +64,6 @@ def index():
 def detect():
     return render_template('detect.html')
 
-@app.route('/unlisted_images', methods=["POST", "GET"])
-def unlisted_images():
-    if request.method == "POST":
-        post_object_name = request.form["object_name"]
-        file = request.files['object_image']
-
-        new_data = My_Database(object_name=post_object_name)
-
-        image_path = os.path.join('static/uploads/temp', file.filename)
-        file.save(image_path)
-
-        try:
-            db.session.add(new_data)
-            db.session.commit()
-
-            copy_image(post_object_name, file.filename)
-
-            return redirect("/unlisted_images")
-        except:
-            return "An error has occured.."
-    else:
-        data = My_Database.query.all()
-
-        my_data = None
-
-        if data is not None:
-            my_data = data
-            
-        return render_template('unlisted_images.html', data=my_data)
-
 @app.route('/result', methods=['POST'])
 def result():
     if 'file' not in request.files:
@@ -121,6 +91,45 @@ def result():
 @app.route("/check_connection")
 def check_connection():
     return jsonify({'status': '200'})
+
+@app.route('/unlisted_images', methods=["POST", "GET"])
+def unlisted_images():
+    if request.method == "POST":
+        post_object_name = request.form["object_name"]
+        file = request.files['object_image']
+
+        new_data = My_Database(object_name=post_object_name)
+
+        image_path = os.path.join('static/uploads/temp', file.filename)
+        file.save(image_path)
+
+        try:
+            db.session.add(new_data)
+            db.session.commit()
+
+            copy_image(post_object_name, file.filename)
+
+            return redirect("/unlisted_images")
+        except:
+            return "An error has occured.."
+    else:
+        data = db.session.query(My_Database).group_by(My_Database.object_name).order_by(My_Database.date_created.desc()).all()
+
+        my_data = None
+
+        if data is not None:
+            my_data = data
+            
+        return render_template('unlisted_images.html', data=my_data)
+
+@app.route("/view_images", methods=["POST"])
+def view_images():
+    post_image_folder = request.form["folder_name"]
+    
+    image_folder = 'static/unlisted_images/' + post_image_folder
+    filenames = os.listdir(image_folder)
+
+    return render_template('view_images.html', filenames=filenames, title=post_image_folder)
 
 def perform_detection(image_path):
     image = Image.open(image_path)
