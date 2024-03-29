@@ -39,6 +39,7 @@ activate Malabay_Silao_Zacarias
 - Install the requirements:
 ```
 pip install tensorflow opencv-python protobuf==3.20.*
+pip install flask-sqlalchemy
 ```
 
 - You can now test the model by typing the code below:
@@ -66,3 +67,5 @@ python web_server.py
 - On the user interface, click `Try it!`, upload an image abd click the button `Upload and Detect`.
 
 - **Note:** The results may not be 100% accurate on NON-CHURCH images, it may detect a wrong result, so make sure you will upload images with church.
+- **Additional Notes (As of March 30, 2024):** You can now use the android application, just enter the web server's address and it is all good!
+- **Additional Notes (As of March 30, 2024):** Use the images that are located in the folder "sample_images" to test the app.

@@ -22,44 +22,44 @@
                         <img id="result-image" src="{{ url_for('static', filename='uploads/' + image_filename) }}"
                             alt="Detected Image" class="img-thumbnail w-100">
                         {% for detection in detections %}
+                        {% if detection.object_name in ['Miagao Church', 'Paoay Church', 'San Agustin Church', 'Sta. Maria Church'] %}
                         <div class="detection-label" style="top: 3px; left: 3px;">
                             <strong>{{ detection.object_name }}</strong><br>
-                            Confidence: {{ detection.confidence|round(4) * 100 }}%<br>
+                            Confidence: {{ detection.confidence|round(2) * 100 }}%<br>
                         </div>
+                        {% endif %}
                         {% endfor %}
                     </div>
                 </div>
                 <div class="col-12">
                     <h3>Detailed Results:</h3>
-                    <ul>
-                        {% if detections %}
-                        {% for detection in detections %}
-                        <li>
-                            Object Name: <strong>{{ detection.object_name }}</strong>
-                        </li>
-                        <li>
-                            Confidence Level: <strong>{{ detection.confidence|round(4) * 100 }}%</strong>
-                        </li>
-                        <li>
-                            Horizontal Boundary Min: <strong>{{ detection.xmin }}</strong>
-                        </li>
-                        <li>
-                            Horizontal Boundary Max: <strong>{{ detection.xmax }}</strong>
-                        </li>
-                        <li>
-                            Vertical Boundary Min: <strong>{{ detection.ymin }}</strong>
-                        </li>
-                        <li>
-                            Vertical Boundary Max: <strong>{{ detection.ymax }}</strong>
-                        </li>
-                        {% endfor %}
-                        {% else %}
-                        <li>
-                            <h1 class="text-muted">No Detection Found</h1>
-                        </li>
-                        {% endif %}
-                    </ul>
+                    {% if detections and detections[0].object_name in ['Miagao Church', 'Paoay Church', 'San Agustin Church', 'Sta. Maria Church'] %}
+                    <h5 style="font-weight: bold;">Church Details:</h5>
+                    {% for detection in detections %}
+                    {% if detection.object_name in ['Miagao Church', 'Paoay Church', 'San Agustin Church', 'Sta. Maria Church'] %}
+                    <p class="mb-1">
+                        Church Name: <strong>{{ detection.object_name }}</strong>
+                    </p>
+                    <p>
+                        Confidence Level: <strong>{{ detection.confidence|round(2) * 100 }}%</strong>
+                    </p>
+                    {% endif %}
+                    {% endfor %}
 
+                    <h5 style="font-weight: bold;">Damage Details:</h5>
+                    {% for detection in detections %}
+                    {% if detection.object_name in ['Environmental Damage', 'Under Construction', 'Unfinished Paint'] %}
+                    <p class="mb-1">
+                        Damage Type: <strong>{{ detection.object_name }}</strong>
+                    </p>
+                    <p>
+                        Confidence Level: <strong>{{ detection.confidence|round(2) * 100 }}%</strong>
+                    </p>
+                    {% endif %}
+                    {% endfor %}
+                    {% else %}
+                    <h1 class="text-muted text-center mb-3">No Detections Found</h1>
+                    {% endif %}
 
                     <a href="/detect" class="btn btn-primary mt-3 w-100">Detect Another Image</a>
 
