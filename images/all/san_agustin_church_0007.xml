@@ -1,0 +1,38 @@
+<annotation>
+	<folder>all</folder>
+	<filename>san_agustin_church_0007.jpg</filename>
+	<path>C:\Users\00ant\Desktop\images_new\all\san_agustin_church_0007.jpg</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>1081</width>
+		<height>1440</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>Environmental Damage</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>936</xmin>
+			<ymin>677</ymin>
+			<xmax>979</xmax>
+			<ymax>760</ymax>
+		</bndbox>
+	</object>
+	<object>
+		<name>San Agustin Church</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>213</xmin>
+			<ymin>197</ymin>
+			<xmax>1046</xmax>
+			<ymax>1184</ymax>
+		</bndbox>
+	</object>
+</annotation>
