@@ -189,5 +189,11 @@ def copy_image(filename, filepath):
     new_image_name = f"image_{image_count:04d}.jpg"
     shutil.copy("static/uploads/temp/" + filepath, os.path.join(folder_path, new_image_name))
 
+def create_tables():
+    with app.app_context():
+        db.create_all()
+
 if __name__ == '__main__':
+    create_tables()
+
     app.run(host='0.0.0.0', port=3000, debug=True)
