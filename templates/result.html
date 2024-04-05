@@ -41,7 +41,7 @@
                         Church Name: <strong>{{ detection.object_name }}</strong>
                     </p>
                     <p>
-                        Confidence Level: <strong>{{ detection.confidence|round(2) * 100 }}%</strong>
+                        Confidence Level: <strong>{{ '%.2f' % (detection.confidence * 100) }}%</strong>
                     </p>
                     {% endif %}
                     {% endfor %}
@@ -53,7 +53,7 @@
                         Damage Type: <strong>{{ detection.object_name }}</strong>
                     </p>
                     <p>
-                        Confidence Level: <strong>{{ detection.confidence|round(2) * 100 }}%</strong>
+                        Confidence Level: <strong>{{ '%.2f' % (detection.confidence * 100) }}%</strong>
                     </p>
                     {% endif %}
                     {% endfor %}

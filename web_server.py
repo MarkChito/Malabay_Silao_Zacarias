@@ -6,6 +6,7 @@ import importlib.util
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 import shutil
+import cv2
 
 app = Flask(__name__)
 
@@ -74,18 +75,14 @@ def result():
     if file.filename == '':
         return jsonify({'error': 'No selected file'})
 
-    # Save the uploaded image
     image_path = os.path.join('static/uploads', file.filename)
     file.save(image_path)
 
-    # Perform object detection
     detections = perform_detection(image_path)
 
-    # Get image dimensions
     image = Image.open(image_path)
     image_width, image_height = image.size
 
-    # Pass the necessary variables to the template
     return render_template('result.html', image_filename=file.filename, detections=detections, image_width=image_width, image_height=image_height)
 
 @app.route("/check_connection")
