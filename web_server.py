@@ -1,30 +1,14 @@
-from flask import Flask, render_template, request, jsonify, redirect
+from flask import render_template, request, jsonify, redirect
 from tensorflow.lite.python.interpreter import Interpreter
-from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime, timezone
-from PIL import Image
+from database import Database, db, app
+from session import Session
 
 import numpy as np
 import shutil
 import os
 import cv2
 
-app = Flask(__name__)
-
-app.config["SQLALCHEMY_DATABASE_URI"]  = "sqlite:///my_database.db"
-
-db = SQLAlchemy(app)
-
-class My_Database(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    date_created = db.Column(db.DateTime, default=datetime.now(timezone.utc))
-    object_name = db.Column(db.String(255), nullable=False)
-    
-    def __repr__(self):
-        return "<Name %r>" % self.id
-
-with app.app_context():
-    db.create_all()
+session = Session()
 
 PATH_TO_CKPT = os.path.join(os.getcwd(), "model", "detect.tflite")
 PATH_TO_LABELS = os.path.join(os.getcwd(), "model", "labelmap.txt")
@@ -52,11 +36,11 @@ boxes_idx, classes_idx, scores_idx = 1, 3, 0
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('index.html', notification=None)
 
 @app.route('/detect')
 def detect():
-    return render_template('detect.html')
+    return render_template('detect.html', notification=None)
 
 @app.route('/result', methods=['POST'])
 def result():
@@ -68,7 +52,7 @@ def result():
 
     detections = perform_detection(image_path)
 
-    return render_template('result.html', image_filename=file.filename, detections=detections)
+    return render_template('result.html', image_filename=file.filename, detections=detections, notification=None)
 
 @app.route("/check_connection")
 def check_connection():
@@ -84,23 +68,32 @@ def unlisted_images():
 
         file.save(image_path)
 
-        data = My_Database(object_name=object_name)
+        data = Database(object_name=object_name)
 
-        db.session.add(data)
-        db.session.commit()
+        data.insert(data)
 
         copy_image(object_name, file.filename)
 
+        os.remove(image_path)
+
+        session.set("notification", {"title": "Success!", "text": "An image has been successfully added to unlisted images.", "icon": "success"})
+
         return redirect("/unlisted_images")
     else:
-        data = db.session.query(My_Database).group_by(My_Database.object_name).order_by(My_Database.date_created.desc()).all()
+        data = db.session.query(Database).group_by(Database.object_name).order_by(Database.date_created.desc()).all()
 
         my_data = None
 
         if data is not None:
             my_data = data
-            
-        return render_template('unlisted_images.html', data=my_data)
+        
+        notification = session.get("notification")
+
+        template = render_template('unlisted_images.html', data=my_data, notification=notification)
+
+        session.unset("notification")
+
+        return template
 
 @app.route("/view_images", methods=["POST"])
 def view_images():
@@ -109,8 +102,9 @@ def view_images():
     image_folder = 'static/unlisted_images/' + post_image_folder
     filenames = os.listdir(image_folder)
 
-    return render_template('view_images.html', filenames=filenames, title=post_image_folder)
+    return render_template('view_images.html', filenames=filenames, title=post_image_folder, notification=None)
 
+# Add a new parameter "purpose"
 def perform_detection(image_path):
     image = cv2.imread(image_path)
     image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
@@ -159,7 +153,7 @@ def perform_detection(image_path):
     return detections
 
 def copy_image(filename, filepath):
-    base_dir = "static/unlisted_images"
+    base_dir = "static/unlisted_images/without_detections"
 
     found_folder = False
 
@@ -186,10 +180,7 @@ def copy_image(filename, filepath):
     
     new_image_name = f"image_{image_count:04d}.jpg"
 
-    shutil.copy("static/uploads/temp/" + filepath, os.path.join(folder_path, new_image_name))    
-
-def insert_db_data(data):
-    pass
+    shutil.copy("static/uploads/temp/" + filepath, os.path.join(folder_path, new_image_name))
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=3000, debug=True)

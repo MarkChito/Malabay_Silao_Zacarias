@@ -6,7 +6,9 @@
         <div class="col-lg-4 col-md-6">
           <div class="footer-info">
             <h3>Heritage App</h3>
-            <p class="pb-3"><em>Heritage Site Identifier and Damage Assessment App is an Android app designed to identify cultural heritage sites and assess any potential damage, aiding in their preservation and protection.</em>
+            <p class="pb-3"><em>Heritage Site Identifier and Damage Assessment App is an Android app designed to
+                identify cultural heritage sites and assess any potential damage, aiding in their preservation and
+                protection.</em>
             </p>
             <p>
               938 Aurora Blvd, Cubao, <br>
@@ -108,6 +110,7 @@
 <script src="{{ url_for('static', filename='assets/vendor/glightbox/js/glightbox.min.js') }}"></script>
 <script src="{{ url_for('static', filename='assets/vendor/swiper/swiper-bundle.min.js') }}"></script>
 <script src="{{ url_for('static', filename='assets/vendor/jquery/jquery-3.7.1.js') }}"></script>
+<script src="{{ url_for('static', filename='assets/vendor/sweetalert2/sweetalert2@11.js') }}"></script>
 
 <!-- Template Main JS File -->
 <script src="{{ url_for('static', filename='assets/js/main.js') }}"></script>
@@ -136,6 +139,16 @@
 
     var resultImage = document.getElementById("result-image");
 
+    var notification = "{{notification}}";
+
+    if (notification != "None") {
+      notification = {
+        "title": "{{ notification['title'] }}",
+        "text": "{{ notification['text'] }}",
+        "icon": "{{ notification['icon'] }}",
+      }
+    }
+
     if (path == "detect" || path == "result" || path == "unlisted_images" || path == "view_images") {
       header.classList.remove("header-transparent");
       home.classList.remove("active");
@@ -163,6 +176,10 @@
         list_new_image_submit.disabled = true;
         list_new_image_submit.textContent = "Please Wait...";
       });
+
+      if (notification != "None") {
+        sweet_alert(notification);
+      }
     }
 
     if (path == "detect") {
@@ -212,14 +229,22 @@
         reader.readAsDataURL(input.files[0]);
       }
     });
-  
-    $(".view_images").click(function(){
+
+    $(".view_images").click(function () {
       var folder_name = $(this).attr("folder_name");
 
       $('#folder_name').val(folder_name);
 
       $('#view_images_form').submit();
     })
+
+    function sweet_alert(data) {
+      Swal.fire({
+        title: data.title,
+        text: data.text,
+        icon: data.icon
+      });
+    }
   })
 </script>
 </body>
