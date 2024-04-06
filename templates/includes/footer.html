@@ -32,6 +32,8 @@
             <li><i class="bx bx-chevron-right"></i> <a href="#hero">Home</a></li>
             <li><i class="bx bx-chevron-right"></i> <a href="#about">About the Project</a></li>
             <li><i class="bx bx-chevron-right"></i> <a href="#contact">Contact</a></li>
+            <li><i class="bx bx-chevron-right"></i> <a href="/detect">Image Detection App</a></li>
+            <li><i class="bx bx-chevron-right"></i> <a href="/unlisted_images">Unlisted Images</a></li>
           </ul>
         </div>
 
@@ -48,8 +50,9 @@
         <div class="col-lg-4 col-md-6 footer-newsletter">
           <h4>Our Newsletter</h4>
           <p>Subscribe to get the latest update of the app.</p>
-          <form action="javascript:void(0)">
-            <input type="email" name="email"><input type="submit" value="Subscribe">
+          <form action="/newsletter_list" method="post" id="newsletter_form">
+            <input type="email" name="newsletter_email" required>
+            <input type="submit" id="newsletter_submit" value="Subscribe">
           </form>
         </div>
       </div>
@@ -89,7 +92,7 @@
             <input type="file" class="form-control" id="imageInput" name="object_image" accept="image/*" required>
           </div>
 
-          <div>
+          <div class="form-group">
             <label for="list_new_image_object_name" class="form-label">Object Name</label>
             <input type="text" class="form-control" id="list_new_image_object_name" name="object_name" required>
           </div>
@@ -97,6 +100,34 @@
         <div class="modal-footer">
           <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
           <button type="submit" class="btn btn-primary" id="list_new_image_submit">Submit</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Update Folder Name Modal -->
+<div class="modal fade" id="update_folder_name_modal" tabindex="-1" aria-labelledby="exampleModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Update Object Name</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form action="/update_folder_name" method="POST" id="update_folder_name_form">
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="update_folder_name_folder_name" class="form-label">New Object Name</label>
+            <input type="text" class="form-control" id="update_folder_name_folder_name"
+              name="update_folder_name_folder_name" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <input type="hidden" id="update_folder_name_old_folder_name" name="update_folder_name_old_folder_name">
+
+          <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary" id="update_folder_name_submit">Submit</button>
         </div>
       </form>
     </div>
@@ -147,6 +178,8 @@
         "text": "{{ notification['text'] }}",
         "icon": "{{ notification['icon'] }}",
       }
+
+      sweet_alert(notification);
     }
 
     if (path == "detect" || path == "result" || path == "unlisted_images" || path == "view_images") {
@@ -176,10 +209,6 @@
         list_new_image_submit.disabled = true;
         list_new_image_submit.textContent = "Please Wait...";
       });
-
-      if (notification != "None") {
-        sweet_alert(notification);
-      }
     }
 
     if (path == "detect") {
@@ -236,6 +265,47 @@
       $('#folder_name').val(folder_name);
 
       $('#view_images_form').submit();
+    })
+    
+    $(".update_folder_name").click(function () {
+      var folder_name = $(this).attr("folder_name");
+
+      $('#update_folder_name_old_folder_name').val(folder_name);
+    })
+
+    $(".archive_folder").click(function () {
+      var folder_name = $(this).attr("folder_name");
+
+      Swal.fire({
+        title: "Are you sure?",
+        text: "You are going to archive \"" + folder_name + "\" and its contents!",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, archive it!"
+      }).then((result) => {
+        if (result.isConfirmed) {
+          $('#archive_folder_folder_name').val(folder_name);
+
+          $('#archive_folder_form').submit();
+        }
+      });
+    })
+
+    $("#contact_us_form").submit(function () {
+      $("#contact_us_submit").attr("disable", true);
+      $("#contact_us_submit").text("Processing...");
+    })
+    
+    $("#update_folder_name_form").submit(function () {
+      $("#update_folder_name_submit").attr("disable", true);
+      $("#update_folder_name_submit").text("Processing...");
+    })
+
+    $("#newsletter_form").submit(function () {
+      $("#newsletter_submit").attr("disable", true);
+      $("#newsletter_submit").val("Processing...");
     })
 
     function sweet_alert(data) {

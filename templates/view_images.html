@@ -7,6 +7,7 @@
                 <h2>{{title}} Images</h2>
                 <ol>
                     <li><a href="/">Home</a></li>
+                    <li><a href="/unlisted_images">Unlisted Images</a></li>
                     <li>{{title}} Images</li>
                 </ol>
             </div>
@@ -20,7 +21,7 @@
                 {% for filename in filenames %}
                 <div class="col-md-4 mb-4">
                     <div class="card">
-                        <img src="{{ url_for('static', filename='unlisted_images/'+ title +'/' + filename) }}"
+                        <img src="{{ url_for('static', filename='unlisted_images/with_detections/'+ title +'/' + filename) }}"
                             class="card-img-top" alt="{{ filename }}">
                         <div class="card-body">
                             <h5 class="card-title">{{ filename }}</h5>
