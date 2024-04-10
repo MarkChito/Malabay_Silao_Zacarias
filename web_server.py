@@ -6,8 +6,8 @@ from session import Session
 import numpy as np
 import difflib
 import shutil
-import os
 import cv2
+import os
 
 session = Session()
 
