@@ -4,10 +4,10 @@
     <section class="breadcrumbs">
         <div class="container">
             <div class="d-flex justify-content-between align-items-center">
-                <h2>Image Detection App</h2>
+                <h2>Image Detection</h2>
                 <ol>
                     <li><a href="/">Home</a></li>
-                    <li>Image Detection App</li>
+                    <li>Image Detection</li>
                 </ol>
             </div>
         </div>
@@ -18,12 +18,11 @@
         <div class="container">
             <form action="/result" method="post" enctype="multipart/form-data" id="result_form">
                 <div class="w-100 text-center mb-4">
-                    <img src="{{ url_for('static', filename='assets/img/no-image.png') }}" id="previewImage" style="width: 300px; height: 300px;" alt="" class="img-thumbnail">
+                    <img src="{{ url_for('static', filename='assets/img/no-image.png') }}" id="previewImage" alt="" class="img-thumbnail w-100">
                 </div>
                 <div class="mb-3">
                     <label for="fileInput" class="form-label">Choose an image:</label>
-                    <input type="file" class="form-control" id="fileInput" name="file" accept=".jpg, .jpeg, .png"
-                        required>
+                    <input type="file" class="form-control" id="fileInput" name="file" accept=".jpg, .jpeg, .png" required>
                 </div>
                 <button type="submit" class="btn btn-primary w-100" id="result_submit">Upload and Detect</button>
             </form>

@@ -412,14 +412,14 @@ h6 {
 --------------------------------------------------------------*/
 #hero {
   width: 100%;
-  background: url("../img/hero-bg.jpg");
+  background: url("../img/bg.jpg");
+  background-size: cover;
   position: relative;
   padding: 120px 0 0 0;
 }
 
 #hero:before {
   content: "";
-  background: rgba(2, 5, 161, 0.91);
   position: absolute;
   bottom: 0;
   top: 0;
@@ -441,9 +441,10 @@ h6 {
 }
 
 #hero h2 {
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(255, 255, 255);
   margin-bottom: 40px;
   font-size: 24px;
+  font-weight: bolder;
 }
 
 #hero .btn-get-started {

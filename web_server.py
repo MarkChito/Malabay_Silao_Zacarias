@@ -39,7 +39,7 @@ boxes_idx, classes_idx, scores_idx = 1, 3, 0
 def index():
     notification = session.get("notification")
 
-    template = render_template('index.html', notification=notification)
+    template = render_template('login.html', notification=notification)
     
     session.unset("notification")
 
@@ -196,6 +196,16 @@ def newsletter_list():
     session.set("notification", {"title": "Success!", "text": "Thank you for subscribing to our newsletter.", "icon": "success"})
 
     return redirect("/#contact")
+
+@app.route('/browser_error')
+def browser_error():
+    notification = session.get("notification")
+
+    template = render_template('browser_error.html', notification=notification)
+    
+    session.unset("notification")
+
+    return template
 
 def perform_detection(image_path, page):
     # ================ Start Image Preprocessing ================ #

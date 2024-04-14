@@ -32,7 +32,7 @@
             <li><i class="bx bx-chevron-right"></i> <a href="#hero">Home</a></li>
             <li><i class="bx bx-chevron-right"></i> <a href="#about">About the Project</a></li>
             <li><i class="bx bx-chevron-right"></i> <a href="#contact">Contact</a></li>
-            <li><i class="bx bx-chevron-right"></i> <a href="/detect">Image Detection App</a></li>
+            <li><i class="bx bx-chevron-right"></i> <a href="/detect">Image Detection</a></li>
             <li><i class="bx bx-chevron-right"></i> <a href="/unlisted_images">Unlisted Images</a></li>
           </ul>
         </div>
@@ -169,8 +169,13 @@
     var list_new_image_form = document.getElementById("list_new_image_form");
 
     var resultImage = document.getElementById("result-image");
+    var detectImage = document.getElementById("previewImage");
 
     var notification = "{{notification}}";
+
+    if (!isMobileOrTablet()) {
+      location.href = "/browser_error";
+    }
 
     if (notification != "None") {
       notification = {
@@ -241,6 +246,14 @@
       }
     }
 
+    if (path == "detect") {
+      if (detectImage) {
+        var currentWidth = detectImage.offsetWidth;
+
+        detectImage.style.height = currentWidth + "px";
+      }
+    }
+
     document.getElementById('imageInput').addEventListener('change', function (event) {
       var input = event.target;
       var imgElement = document.getElementById('imagePreview');
@@ -266,7 +279,7 @@
 
       $('#view_images_form').submit();
     })
-    
+
     $(".update_folder_name").click(function () {
       var folder_name = $(this).attr("folder_name");
 
@@ -297,7 +310,7 @@
       $("#contact_us_submit").attr("disable", true);
       $("#contact_us_submit").text("Processing...");
     })
-    
+
     $("#update_folder_name_form").submit(function () {
       $("#update_folder_name_submit").attr("disable", true);
       $("#update_folder_name_submit").text("Processing...");
@@ -307,6 +320,19 @@
       $("#newsletter_submit").attr("disable", true);
       $("#newsletter_submit").val("Processing...");
     })
+
+    function isMobileOrTablet() {
+      var mobileRegex = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i;
+      var tabletRegex = /Tablet|iPad/i;
+
+      var screenWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+
+      if (mobileRegex.test(navigator.userAgent) || (tabletRegex.test(navigator.userAgent) && screenWidth < 1025)) {
+        return true;
+      } else {
+        return false;
+      }
+    }
 
     function sweet_alert(data) {
       Swal.fire({

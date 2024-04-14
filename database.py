@@ -80,5 +80,48 @@ class Newsletter_List(db.Model):
 
         db.session.commit()
 
+class User_Accounts(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    date_created = db.Column(db.DateTime, default=datetime.now(timezone.utc))
+    name = db.Column(db.String(255), nullable=False)
+    username = db.Column(db.String(255), nullable=False)
+    password = db.Column(db.String(255), nullable=False)
+    
+    def __repr__(self):
+        return "<User_Accounts %r>" % self.id
+    
+    @classmethod
+    def insert(cls, data):
+        db.session.add(data)
+
+        db.session.commit()
+
+    @classmethod
+    def update(cls, old_name, new_name):
+        data = cls.query.filter_by(object_name=old_name).all()
+        
+        for item in data:
+            item.object_name = new_name
+        
+        db.session.commit()
+
+class Upload_History(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    date_created = db.Column(db.DateTime, default=datetime.now(timezone.utc))
+    user_id = db.Column(db.Integer, nullable=False)
+    image_name = db.Column(db.String(255), nullable=False)
+    
+    def __repr__(self):
+        return "<Upload_History %r>" % self.id
+    
+    @classmethod
+    def select(cls, user_id):
+        data = cls.query.filter_by(user_id=user_id).first()
+        
+        if not data:
+            return False
+        
+        return data
+
 with app.app_context():
     db.create_all()

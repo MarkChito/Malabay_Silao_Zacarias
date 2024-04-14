@@ -132,3 +132,24 @@
     font-weight: 700;
     font-style: italic;
 }
+
+.login-form {
+    background-image: url("../img/bg.jpg");
+    background-size: cover;
+    background-repeat: no-repeat;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.glass-card {
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(128, 128, 128, 1);
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+.img-shadow {
+    border-radius: 30px;
+    box-shadow: 0 4px 8px rgba(128, 128, 128, 1);
+}
