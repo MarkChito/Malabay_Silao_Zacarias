@@ -377,7 +377,12 @@ def perform_detection(image_path, page, user_id):
                 church_code = db_object_name.church_code
             
             else:
-                cv2.rectangle(image, (xmin,ymin), (xmax,ymax), (255, 0, 0), 2)
+                if model_object_name == "vegetation_damage":
+                    cv2.rectangle(image, (xmin,ymin), (xmax,ymax), (255, 0, 0), 2)
+                if model_object_name == "water_damage_or_mold":
+                    cv2.rectangle(image, (xmin,ymin), (xmax,ymax), (0, 0, 255), 2)
+                if model_object_name == "unfinished_paint":
+                    cv2.rectangle(image, (xmin,ymin), (xmax,ymax), (0, 0, 0), 2)
 
     if page == "image_detection":
         base_dir = "static/uploads"
