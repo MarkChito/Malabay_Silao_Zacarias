@@ -105,9 +105,9 @@
         jQuery(document).ready(function () {
             var notification = "{{notification}}";
 
-            // if (!isMobileOrTablet()) {
-            //     location.href = "/browser_error";
-            // }
+            if (!isMobileOrTablet()) {
+                location.href = "/browser_error";
+            }
 
             if (notification != "None") {
                 notification = {

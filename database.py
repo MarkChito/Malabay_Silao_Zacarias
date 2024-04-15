@@ -129,6 +129,11 @@ class Upload_History(db.Model):
     date_created = db.Column(db.DateTime, default=datetime.now(timezone.utc))
     user_id = db.Column(db.Integer, nullable=False)
     image_name = db.Column(db.String(255), nullable=False)
+    church_name = db.Column(db.String(255), nullable=False)
+    location = db.Column(db.String(255), nullable=False)
+    building_capacity = db.Column(db.String(255), nullable=False)
+    date_built = db.Column(db.String(255), nullable=False)
+    short_description = db.Column(db.Text, nullable=False)
     
     def __repr__(self):
         return "<Upload_History %r>" % self.id
@@ -165,7 +170,7 @@ class Church_Details(db.Model):
     location = db.Column(db.String(255), nullable=False)
     building_capacity = db.Column(db.String(255), nullable=False)
     date_built = db.Column(db.String(255), nullable=False)
-    short_description = db.Column(db.String(255), nullable=False)
+    short_description = db.Column(db.Text, nullable=False)
     
     def __repr__(self):
         return "<Church_Details %r>" % self.id

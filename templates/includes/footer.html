@@ -187,9 +187,9 @@
 
     $("#nav_upload_history").attr("href", "/upload_history?user_id=" + user_data.id);
 
-    // if (!isMobileOrTablet()) {
-    //   location.href = "/browser_error";
-    // }
+    if (!isMobileOrTablet()) {
+      location.href = "/browser_error";
+    }
 
     if (notification != "None") {
       notification = {

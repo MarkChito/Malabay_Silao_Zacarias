@@ -68,13 +68,19 @@ def result():
 
     file.save(image_path)
 
-    data = Upload_History(user_id=user_id, image_name=str(user_id) + "_" + file.filename)
+    church_code = perform_detection(image_path, "image_detection", user_id)
+
+    image_name = str(user_id) + "_" + file.filename
+
+    church_data = Church_Details()
+
+    details = church_data.select(church_code)
+
+    data = Upload_History(user_id=user_id, image_name=image_name, church_name=details.church_name, location=details.location, building_capacity=details.building_capacity, date_built=details.date_built, short_description=details.short_description)
 
     data.insert(data)
 
-    detections = perform_detection(image_path, "image_detection", user_id)
-
-    return render_template('result.html', image_filename=str(user_id) + "_" + file.filename, detections=detections, notification=None)
+    return render_template('result.html', image_filename=image_name, church_name=details.church_name, location=details.location, building_capacity=details.building_capacity, date_built=details.date_built, short_description=details.short_description, notification=None)
 
 @app.route("/check_connection")
 def check_connection():
@@ -314,6 +320,8 @@ def perform_detection(image_path, page, user_id):
     classes = interpreter.get_tensor(output_details[classes_idx]['index'])[0]
     scores = interpreter.get_tensor(output_details[scores_idx]['index'])[0]
 
+    church_code = None
+
     for i in range(len(scores)):
         if ((scores[i] > 0.5) and (scores[i] <= 1.0)):
             ymin = int(max(1,(boxes[i][0] * imH)))
@@ -321,20 +329,24 @@ def perform_detection(image_path, page, user_id):
             ymax = int(min(imH,(boxes[i][2] * imH)))
             xmax = int(min(imW,(boxes[i][3] * imW)))
             
-            cv2.rectangle(image, (xmin,ymin), (xmax,ymax), (10, 255, 0), 2)
-            
             db = Church_Details()
 
             model_object_name = labels[int(classes[i])]
             db_object_name = db.select(model_object_name)
-            object_name = db_object_name.church_name
-            label = '%s' % (object_name)
-            labelSize, baseLine = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.7, 2)
-            label_ymin = max(ymin, labelSize[1] + 10)
-            
-            cv2.rectangle(image, (xmin, label_ymin-labelSize[1]-10), (xmin+labelSize[0], label_ymin+baseLine-10), (255, 255, 255), cv2.FILLED)
-            cv2.putText(image, label, (xmin, label_ymin-7), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 0), 2)
-            
+
+            if db_object_name:
+                cv2.rectangle(image, (xmin,ymin), (xmax,ymax), (10, 255, 0), 2)
+
+                object_name = db_object_name.church_name
+                label = '%s' % (object_name)
+                labelSize, baseLine = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.7, 2)
+                label_ymin = max(ymin, labelSize[1] + 10)
+                
+                cv2.rectangle(image, (xmin, label_ymin-labelSize[1]-10), (xmin+labelSize[0], label_ymin+baseLine-10), (255, 255, 255), cv2.FILLED)
+                cv2.putText(image, label, (xmin, label_ymin-7), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 0), 2)
+
+                church_code = db_object_name.church_code
+
     if page == "image_detection":
         base_dir = "static/uploads"
     else:
@@ -344,6 +356,8 @@ def perform_detection(image_path, page, user_id):
     image_savepath = os.path.join(os.getcwd(), base_dir, image_fn)
 
     cv2.imwrite(image_savepath, image)
+
+    return church_code
 
 def copy_image(filename, filepath):
     base_dir = "static/unlisted_images/without_detections"

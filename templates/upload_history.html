@@ -21,12 +21,27 @@
                 {% if data %}
                 {% for item in data %}
                 <div class="col-md-4 mb-3">
-                    <div class="card" style="border: 0;">
-                        <img src="{{ url_for('static', filename='uploads/'+ item.image_name +'') }}"
-                            class="card-img-top img-shadow" alt="{{ filename }}">
+                    <div class="card">
+                        <div class="card-header">
+                            <img src="{{ url_for('static', filename='uploads/'+ item.image_name +'') }}"
+                                class="card-img-top img-shadow my-1 w-100" alt="{{ item.image_name }}">
+                        </div>
                         <div class="card-body">
-                            <strong>Object Name:</strong> {{item.image_name}}
-                            <strong>Location:</strong> Luzon
+                            <span class="d-block mb-2">
+                                <strong>Church Name:</strong> {{item.church_name}}
+                            </span>
+                            <span class="d-block mb-2">
+                                <strong>Location:</strong> {{item.location}}
+                            </span>
+                            <span class="d-block mb-2">
+                                <strong>Building Capacity:</strong> {{item.building_capacity}}
+                            </span>
+                            <span class="d-block mb-2">
+                                <strong>Date Built:</strong> {{item.date_built}}
+                            </span>
+                            <span class="d-block">
+                                <strong>Short Description:</strong> {{item.short_description}}
+                            </span>
                         </div>
                     </div>
                 </div>
