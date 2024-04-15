@@ -12,7 +12,9 @@ db = SQLAlchemy(app)
 class Unlisted_Images(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     date_created = db.Column(db.DateTime, default=datetime.now(timezone.utc))
+    user_id = db.Column(db.Integer, nullable=False)
     object_name = db.Column(db.String(255), nullable=False)
+    location = db.Column(db.String(255), nullable=False)
     
     def __repr__(self):
         return f"<Unlisted_Images id={self.id}>"

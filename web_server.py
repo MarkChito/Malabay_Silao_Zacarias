@@ -89,22 +89,26 @@ def check_connection():
 @app.route('/unlisted_images', methods=["POST", "GET"])
 def unlisted_images():
     if request.method == "POST":
-        object_name = request.form["object_name"]
-        file = request.files['object_image']
+        user_id = request.form["list_new_image_user_id"]
+        object_name = request.form["list_new_image_object_name"]
+        location = request.form["list_new_image_location"]
+        file = request.files['list_new_image_object_image']
 
         image_path = os.path.join('static/uploads/temp', file.filename)
 
         file.save(image_path)
 
-        data = Unlisted_Images(object_name=object_name)
+        data = Unlisted_Images(user_id=user_id, object_name=object_name, location=location)
 
         data.insert(data)
 
+        object_name = str(user_id) + "_" + object_name
+
         copy_image(object_name, file.filename)
 
-        perform_detection(image_path, "unlisted_images")
+        perform_detection(image_path, "unlisted_images", user_id)
 
-        copy_image_with_detection(object_name, file.filename)
+        copy_image_with_detection(object_name, file.filename, user_id)
 
         os.remove(image_path)
 
@@ -130,12 +134,13 @@ def unlisted_images():
 
 @app.route("/view_images", methods=["POST"])
 def view_images():
+    post_user_id = request.form["user_id"]
     post_image_folder = request.form["folder_name"]
     
-    image_folder = 'static/unlisted_images/with_detections/' + post_image_folder
+    image_folder = 'static/unlisted_images/with_detections/' + str(post_user_id) + "_" + post_image_folder
     filenames = os.listdir(image_folder)
 
-    return render_template('view_images.html', filenames=filenames, title=post_image_folder, notification=None)
+    return render_template('view_images.html', filenames=filenames, title=post_image_folder, user_id=post_user_id, notification=None)
 
 @app.route("/upload_history")
 def upload_history():
@@ -359,7 +364,7 @@ def perform_detection(image_path, page, user_id):
 
     return church_code
 
-def copy_image(filename, filepath):
+def copy_image(filename, filepath, user_id):
     base_dir = "static/unlisted_images/without_detections"
 
     found_folder = False
@@ -387,7 +392,7 @@ def copy_image(filename, filepath):
     
     new_image_name = f"image_{image_count:04d}.jpg"
 
-    shutil.copy("static/uploads/temp/" + filepath, os.path.join(folder_path, new_image_name))
+    shutil.copy("static/uploads/temp/" + user_id + "_" + filepath, os.path.join(folder_path, new_image_name))
 
 def copy_image_with_detection(filename, filepath):
     base_dir = "static/unlisted_images/with_detections"

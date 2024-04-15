@@ -21,10 +21,14 @@
                 {% for filename in filenames %}
                 <div class="col-md-4 mb-4">
                     <div class="card">
-                        <img src="{{ url_for('static', filename='unlisted_images/with_detections/'+ title +'/' + filename) }}"
-                            class="card-img-top" alt="{{ filename }}">
+                        <div class="card-header">
+                            <img src="{{ url_for('static', filename='unlisted_images/with_detections/'+ user_id + '_' + title +'/' + filename) }}"
+                                class="card-img-top w-100 my-1 img-shadow clickable_image" alt="{{ filename }}">
+                        </div>
                         <div class="card-body">
-                            <h5 class="card-title">{{ filename }}</h5>
+                            <span class="d-block mb-2">
+                                <strong>Image Name:</strong> {{ filename }}
+                            </span> 
                         </div>
                     </div>
                 </div>

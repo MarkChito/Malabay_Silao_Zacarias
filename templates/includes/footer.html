@@ -73,6 +73,15 @@
 
 <div id="preloader"></div>
 
+<!-- ======= View Full Screen Image Modal ======= -->
+<div class="modal fade" id="view_image_modal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <img id="image_container" alt="Full Screen Image">
+    </div>
+  </div>
+</div>
+
 <!-- List New Image Modal -->
 <div class="modal fade" id="list_new_image" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
@@ -85,19 +94,30 @@
         <div class="modal-body">
           <div class="w-100 text-center">
             <img id="imagePreview" src="{{ url_for('static', filename='assets/img/no-image.png') }}" alt="Image Preview"
-              style="width: 100%;" class="img-thumbnail mb-2">
+              style="width: 100%;" class="img-thumbnail mb-2 img-shadow">
           </div>
 
           <div class="mb-3 w-100 d-flex justify-content-center">
-            <input type="file" class="form-control" id="imageInput" name="object_image" accept="image/*" required>
+            <input type="file" class="form-control" id="imageInput" name="list_new_image_object_image" accept="image/*" required>
           </div>
 
-          <div class="form-group">
+          <div class="form-group mb-3">
             <label for="list_new_image_object_name" class="form-label">Object Name</label>
-            <input type="text" class="form-control" id="list_new_image_object_name" name="object_name" required>
+            <input type="text" class="form-control" id="list_new_image_object_name" name="list_new_image_object_name" required>
+          </div>
+          <div class="form-group">
+            <label for="list_new_image_location" class="form-label">Location</label>
+            <select name="list_new_image_location" id="list_new_image_location" class="form-control" required>
+              <option value="" selected disabled>-- Choose --</option>
+              <option value="Luzon">Luzon</option>
+              <option value="Visayas">Visayas</option>
+              <option value="Mindanao">Mindanao</option>
+            </select>
           </div>
         </div>
         <div class="modal-footer">
+          <input type="hidden" name="list_new_image_user_id" id="list_new_image_user_id">
+
           <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
           <button type="submit" class="btn btn-primary" id="list_new_image_submit">Submit</button>
         </div>
@@ -173,6 +193,7 @@
     var detectImage = document.getElementById("previewImage");
 
     var result_user_id = document.getElementById("result_user_id");
+    var list_new_image_user_id = document.getElementById("list_new_image_user_id");
 
     var notification = "{{notification}}";
 
@@ -226,6 +247,10 @@
       upload_history.classList.remove("active");
       unlisted_images.classList.add("active");
 
+      list_new_image_user_id.value = user_data.id;
+
+      $(".view_images").attr("user_id", user_data.id);
+
       list_new_image_form.addEventListener("submit", function () {
         list_new_image_submit.disabled = true;
         list_new_image_submit.textContent = "Please Wait...";
@@ -263,7 +288,7 @@
       }
     }
 
-    if (path == "upload_history"){
+    if (path == "upload_history") {
       detect.classList.remove("active");
       unlisted_images.classList.remove("active");
       upload_history.classList.add("active");
@@ -277,13 +302,13 @@
       }
     }
 
-    document.getElementById('imageInput').addEventListener('change', function (event) {
+    $("#imageInput").change(function (event) {
       var input = event.target;
       var imgElement = document.getElementById('imagePreview');
 
       if (!input.files || !input.files[0]) {
         imgElement.src = "{{ url_for('static', filename='assets/img/no-image.png') }}";
-      }
+      } 
       else {
         var reader = new FileReader();
 
@@ -295,9 +320,19 @@
       }
     });
 
+    $(".clickable_image").click(function () {
+      const src = $(this).attr("src");
+
+      $("#image_container").attr("src", src);
+
+      $("#view_image_modal").modal("show");
+    })
+
     $(".view_images").click(function () {
+      var user_id = $(this).attr("user_id");
       var folder_name = $(this).attr("folder_name");
 
+      $('#user_id').val(user_id);
       $('#folder_name').val(folder_name);
 
       $('#view_images_form').submit();
@@ -343,27 +378,27 @@
       $("#newsletter_submit").attr("disable", true);
       $("#newsletter_submit").val("Processing...");
     })
-    
+
     $("#nav_logout").click(function () {
       var formData = new FormData();
-      
-      formData.append('logout', true);
-      
-      $.ajax({
-          url: '/logout',
-          data: formData,
-          type: 'POST',
-          dataType: 'JSON',
-          processData: false,
-          contentType: false,
-          success: function(response) {
-              sessionStorage.clear();
 
-              location.href = "/";
-          },
-          error: function(_, _, error) {
-              console.error(error);
-          }
+      formData.append('logout', true);
+
+      $.ajax({
+        url: '/logout',
+        data: formData,
+        type: 'POST',
+        dataType: 'JSON',
+        processData: false,
+        contentType: false,
+        success: function (response) {
+          sessionStorage.clear();
+
+          location.href = "/";
+        },
+        error: function (_, _, error) {
+          console.error(error);
+        }
       });
     })
 
