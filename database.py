@@ -48,7 +48,7 @@ class Unlisted_Images(db.Model):
         data = cls.query.filter_by(object_name=folder_name).first()
         
         if data:
-            return True
+            return data
         
         return False
 

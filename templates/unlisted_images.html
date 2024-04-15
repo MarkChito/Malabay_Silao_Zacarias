@@ -29,6 +29,7 @@
                 <thead>
                     <tr>
                         <th scope="col">Object Name</th>
+                        <th scope="col">Location</th>
                         <th scope="col" class="text-center">Actions</th>
                     </tr>
                 </thead>
@@ -37,9 +38,10 @@
                     {% for single_data in data %}
                     <tr>
                         <td>{{ single_data.object_name }}</td>
-                        <td class="text-center">
+                        <td>{{ single_data.location }}</td>
+                        <td class="text-center text-truncate">
                             <i class="fa fa-eye text-success me-2 view_images" role="button" title="View Images" folder_name="{{ single_data.object_name }}"></i>
-                            <i class="fa fa-edit text-primary me-2 update_folder_name" role="button" title="Edit Object Name" folder_name="{{ single_data.object_name }}" data-bs-toggle="modal" data-bs-target="#update_folder_name_modal"></i>
+                            <!-- <i class="fa fa-edit text-primary me-2 update_folder_name" role="button" title="Edit Object Name" folder_name="{{ single_data.object_name }}" data-bs-toggle="modal" data-bs-target="#update_folder_name_modal"></i> -->
                             <i class="fa fa-archive text-danger archive_folder" role="button" title="Archive Object" folder_name="{{ single_data.object_name }}"></i>
                         </td>
                     </tr>

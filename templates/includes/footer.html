@@ -1,3 +1,15 @@
+<style>
+  .btn-close-red {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 1050;
+    color: red !important;
+    background-color: transparent;
+    border: none;
+  }
+</style>
+
 <!-- ======= Footer ======= -->
 <footer id="footer">
   <div class="footer-top">
@@ -77,6 +89,9 @@
 <div class="modal fade" id="view_image_modal" tabindex="-1">
   <div class="modal-dialog modal-lg modal-dialog-centered">
     <div class="modal-content">
+      <!-- Close button -->
+      <button type="button" class="btn-close btn-close-red" data-bs-dismiss="modal" aria-label="Close"></button>
+      <!-- Image container -->
       <img id="image_container" alt="Full Screen Image">
     </div>
   </div>
@@ -94,16 +109,18 @@
         <div class="modal-body">
           <div class="w-100 text-center">
             <img id="imagePreview" src="{{ url_for('static', filename='assets/img/no-image.png') }}" alt="Image Preview"
-              style="width: 100%;" class="img-thumbnail mb-2 img-shadow">
+              style="width: 100%;" class="img-thumbnail mb-3 img-shadow">
           </div>
 
           <div class="mb-3 w-100 d-flex justify-content-center">
-            <input type="file" class="form-control" id="imageInput" name="list_new_image_object_image" accept="image/*" required>
+            <input type="file" class="form-control" id="imageInput" name="list_new_image_object_image" accept="image/*"
+              required>
           </div>
 
           <div class="form-group mb-3">
             <label for="list_new_image_object_name" class="form-label">Object Name</label>
-            <input type="text" class="form-control" id="list_new_image_object_name" name="list_new_image_object_name" required>
+            <input type="text" class="form-control" id="list_new_image_object_name" name="list_new_image_object_name"
+              required>
           </div>
           <div class="form-group">
             <label for="list_new_image_location" class="form-label">Location</label>
@@ -199,13 +216,7 @@
 
     var user_data = JSON.parse(sessionStorage.getItem("user_data"));
 
-    if (user_data.user_type == "admin") {
-      // upload_history.classList.add("d-none");
-    }
-    else {
-      // upload_history.classList.remove("d-none");
-    }
-
+    $("#nav_unlisted_images").attr("href", "/unlisted_images?user_id=" + user_data.id);
     $("#nav_upload_history").attr("href", "/upload_history?user_id=" + user_data.id);
 
     if (!isMobileOrTablet()) {
@@ -255,6 +266,15 @@
         list_new_image_submit.disabled = true;
         list_new_image_submit.textContent = "Please Wait...";
       });
+
+      if (user_data.user_type == "admin") {
+        // $(".update_folder_name").removeClass("d-none");
+        $(".archive_folder").removeClass("d-none");
+      }
+      else {
+        // $(".update_folder_name").addClass("d-none");
+        $(".archive_folder").addClass("d-none");
+      }
     }
 
     if (path == "detect") {
@@ -308,7 +328,7 @@
 
       if (!input.files || !input.files[0]) {
         imgElement.src = "{{ url_for('static', filename='assets/img/no-image.png') }}";
-      } 
+      }
       else {
         var reader = new FileReader();
 

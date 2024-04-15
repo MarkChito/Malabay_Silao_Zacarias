@@ -72,15 +72,28 @@ def result():
 
     image_name = str(user_id) + "_" + file.filename
 
-    church_data = Church_Details()
+    church_name = "None"
+    location = "None"
+    building_capacity = "None"
+    date_built = "None"
+    short_description = "None"
 
-    details = church_data.select(church_code)
+    if church_code:
+        church_data = Church_Details()
 
-    data = Upload_History(user_id=user_id, image_name=image_name, church_name=details.church_name, location=details.location, building_capacity=details.building_capacity, date_built=details.date_built, short_description=details.short_description)
+        details = church_data.select(church_code)
+
+        church_name = details.church_name
+        location = details.location
+        building_capacity = details.building_capacity
+        date_built = details.date_built
+        short_description = details.short_description
+
+    data = Upload_History(user_id=user_id, image_name=image_name, church_name=church_name, location=location, building_capacity=building_capacity, date_built=date_built, short_description=short_description)
 
     data.insert(data)
 
-    return render_template('result.html', image_filename=image_name, church_name=details.church_name, location=details.location, building_capacity=details.building_capacity, date_built=details.date_built, short_description=details.short_description, notification=None)
+    return render_template('result.html', image_filename=image_name, church_name=church_name, location=location, building_capacity=building_capacity, date_built=date_built, short_description=short_description, notification=None)
 
 @app.route("/check_connection")
 def check_connection():
@@ -94,25 +107,36 @@ def unlisted_images():
         location = request.form["list_new_image_location"]
         file = request.files['list_new_image_object_image']
 
-        image_path = os.path.join('static/uploads/temp', file.filename)
+        my_db = Unlisted_Images()
 
-        file.save(image_path)
+        errors = 0
 
-        data = Unlisted_Images(user_id=user_id, object_name=object_name, location=location)
+        data = my_db.is_record_available(object_name)
 
-        data.insert(data)
+        if data:
+            if data.location != location:
+                errors += 1
 
-        object_name = str(user_id) + "_" + object_name
+                session.set("notification", {"title": "Oops...", "text": "This object was initially set to location "+ data.location +". Please contact your develper for assistance.", "icon": "error"})
+        
+        if errors == 0:
+            image_path = os.path.join('static/uploads/temp', file.filename)
 
-        copy_image(object_name, file.filename)
+            file.save(image_path)
 
-        perform_detection(image_path, "unlisted_images", user_id)
+            data = Unlisted_Images(user_id=user_id, object_name=object_name, location=location)
 
-        copy_image_with_detection(object_name, file.filename, user_id)
+            data.insert(data)
 
-        os.remove(image_path)
+            copy_image(object_name, file.filename)
 
-        session.set("notification", {"title": "Success!", "text": "An image has been successfully added to unlisted images.", "icon": "success"})
+            perform_detection(image_path, "unlisted_images", user_id)
+
+            copy_image_with_detection(object_name, file.filename)
+
+            os.remove(image_path)
+
+            session.set("notification", {"title": "Success!", "text": "An image has been successfully added to unlisted images.", "icon": "success"})
 
         return redirect("/unlisted_images")
     
@@ -137,7 +161,7 @@ def view_images():
     post_user_id = request.form["user_id"]
     post_image_folder = request.form["folder_name"]
     
-    image_folder = 'static/unlisted_images/with_detections/' + str(post_user_id) + "_" + post_image_folder
+    image_folder = 'static/unlisted_images/with_detections/' + post_image_folder
     filenames = os.listdir(image_folder)
 
     return render_template('view_images.html', filenames=filenames, title=post_image_folder, user_id=post_user_id, notification=None)
@@ -351,20 +375,26 @@ def perform_detection(image_path, page, user_id):
                 cv2.putText(image, label, (xmin, label_ymin-7), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 0), 2)
 
                 church_code = db_object_name.church_code
+            
+            else:
+                cv2.rectangle(image, (xmin,ymin), (xmax,ymax), (255, 0, 0), 2)
 
     if page == "image_detection":
         base_dir = "static/uploads"
+
+        image_fn = str(user_id) + "_" + os.path.basename(image_path)
     else:
         base_dir = "static/uploads/temp"
 
-    image_fn = str(user_id) + "_" + os.path.basename(image_path)
+        image_fn = os.path.basename(image_path)
+
     image_savepath = os.path.join(os.getcwd(), base_dir, image_fn)
 
     cv2.imwrite(image_savepath, image)
 
     return church_code
 
-def copy_image(filename, filepath, user_id):
+def copy_image(filename, filepath):
     base_dir = "static/unlisted_images/without_detections"
 
     found_folder = False
@@ -392,7 +422,7 @@ def copy_image(filename, filepath, user_id):
     
     new_image_name = f"image_{image_count:04d}.jpg"
 
-    shutil.copy("static/uploads/temp/" + user_id + "_" + filepath, os.path.join(folder_path, new_image_name))
+    shutil.copy("static/uploads/temp/" + filepath, os.path.join(folder_path, new_image_name))
 
 def copy_image_with_detection(filename, filepath):
     base_dir = "static/unlisted_images/with_detections"
