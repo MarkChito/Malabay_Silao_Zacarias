@@ -1,7 +1,1 @@
-{
-    "notification": {
-        "title": "Oops...",
-        "text": "Invalid Username or Password.",
-        "icon": "error"
-    }
-}
+{}

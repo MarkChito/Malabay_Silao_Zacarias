@@ -157,6 +157,7 @@
     var about = document.getElementById("nav_about");
     var contact = document.getElementById("nav_contact");
     var detect = document.getElementById("nav_detect");
+    var upload_history = document.getElementById("nav_upload_history");
     var unlisted_images = document.getElementById("nav_unlisted_images");
 
     var imageInput = document.getElementById("fileInput");
@@ -171,11 +172,24 @@
     var resultImage = document.getElementById("result-image");
     var detectImage = document.getElementById("previewImage");
 
+    var result_user_id = document.getElementById("result_user_id");
+
     var notification = "{{notification}}";
 
-    if (!isMobileOrTablet()) {
-      location.href = "/browser_error";
+    var user_data = JSON.parse(sessionStorage.getItem("user_data"));
+
+    if (user_data.user_type == "admin") {
+      // upload_history.classList.add("d-none");
     }
+    else {
+      // upload_history.classList.remove("d-none");
+    }
+
+    $("#nav_upload_history").attr("href", "/upload_history?user_id=" + user_data.id);
+
+    // if (!isMobileOrTablet()) {
+    //   location.href = "/browser_error";
+    // }
 
     if (notification != "None") {
       notification = {
@@ -187,19 +201,20 @@
       sweet_alert(notification);
     }
 
-    if (path == "detect" || path == "result" || path == "unlisted_images" || path == "view_images") {
+    if (path == "detect" || path == "result" || path == "unlisted_images" || path == "view_images" || path == "upload_history") {
       header.classList.remove("header-transparent");
       home.classList.remove("active");
 
-      home.setAttribute("href", "/");
-      about.setAttribute("href", "/#about");
-      contact.setAttribute("href", "/#contact");
+      home.setAttribute("href", "/user_view");
+      about.setAttribute("href", "/user_view#about");
+      contact.setAttribute("href", "/user_view#contact");
     }
     else {
       header.classList.add("header-transparent");
       home.classList.add("active");
       detect.classList.remove("active");
       unlisted_images.classList.remove("active");
+      upload_history.classList.remove("active");
 
       home.setAttribute("href", "#hero");
       about.setAttribute("href", "#about");
@@ -208,6 +223,7 @@
 
     if (path == "unlisted_images") {
       detect.classList.remove("active");
+      upload_history.classList.remove("active");
       unlisted_images.classList.add("active");
 
       list_new_image_form.addEventListener("submit", function () {
@@ -219,6 +235,9 @@
     if (path == "detect") {
       detect.classList.add("active");
       unlisted_images.classList.remove("active");
+      upload_history.classList.remove("active");
+
+      result_user_id.value = user_data.id;
 
       imageInput.addEventListener("change", function () {
         if (imageInput.files && imageInput.files[0]) {
@@ -236,6 +255,18 @@
         result_submit.disabled = true;
         result_submit.textContent = "Please Wait...";
       });
+
+      if (detectImage) {
+        var currentWidth = detectImage.offsetWidth;
+
+        detectImage.style.height = currentWidth + "px";
+      }
+    }
+
+    if (path == "upload_history"){
+      detect.classList.remove("active");
+      unlisted_images.classList.remove("active");
+      upload_history.classList.add("active");
     }
 
     if (path == "result") {
@@ -243,14 +274,6 @@
         var currentWidth = resultImage.offsetWidth;
 
         resultImage.style.height = currentWidth + "px";
-      }
-    }
-
-    if (path == "detect") {
-      if (detectImage) {
-        var currentWidth = detectImage.offsetWidth;
-
-        detectImage.style.height = currentWidth + "px";
       }
     }
 
@@ -319,6 +342,29 @@
     $("#newsletter_form").submit(function () {
       $("#newsletter_submit").attr("disable", true);
       $("#newsletter_submit").val("Processing...");
+    })
+    
+    $("#nav_logout").click(function () {
+      var formData = new FormData();
+      
+      formData.append('logout', true);
+      
+      $.ajax({
+          url: '/logout',
+          data: formData,
+          type: 'POST',
+          dataType: 'JSON',
+          processData: false,
+          contentType: false,
+          success: function(response) {
+              sessionStorage.clear();
+
+              location.href = "/";
+          },
+          error: function(_, _, error) {
+              console.error(error);
+          }
+      });
     })
 
     function isMobileOrTablet() {

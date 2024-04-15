@@ -150,13 +150,14 @@
                     processData: false,
                     contentType: false,
                     success: function (response) {
-                        // location.href = "/";
+                        if (response) {
+                            sessionStorage.setItem("user_data", JSON.stringify(response));
 
-                        sessionStorage.setItem("user_data", JSON.stringify(response));
-
-                        var item = sessionStorage.getItem('user_data');
-
-                        console.log(item);
+                            location.href = "/user_view";
+                        }
+                        else {
+                            location.href = "/";
+                        }
                     },
                     error: function (_, _, error) {
                         console.error(error);

@@ -1,0 +1,41 @@
+{% include 'includes/header.html' %}
+<main id="main">
+    <!-- ======= Breadcrumbs Section ======= -->
+    <section class="breadcrumbs">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2>Upload History</h2>
+                <ol>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/detect">Image Detection</a></li>
+                    <li>Upload History</li>
+                </ol>
+            </div>
+        </div>
+    </section>
+    <!-- End Breadcrumbs Section -->
+
+    <section class="inner-page py-4">
+        <div class="container">
+            <div class="row mt-4">
+                {% if data %}
+                {% for item in data %}
+                <div class="col-md-4 mb-3">
+                    <div class="card" style="border: 0;">
+                        <img src="{{ url_for('static', filename='uploads/'+ item.image_name +'') }}"
+                            class="card-img-top img-shadow" alt="{{ filename }}">
+                        <div class="card-body">
+                            <strong>Object Name:</strong> {{item.image_name}}
+                            <strong>Location:</strong> Luzon
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                {% else %}
+                <h1 class="text-center text-muted pb-5">No Data Available</h1>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+</main>
+{% include 'includes/footer.html' %}

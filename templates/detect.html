@@ -18,12 +18,15 @@
         <div class="container">
             <form action="/result" method="post" enctype="multipart/form-data" id="result_form">
                 <div class="w-100 text-center mb-4">
-                    <img src="{{ url_for('static', filename='assets/img/no-image.png') }}" id="previewImage" alt="" class="img-thumbnail w-100">
+                    <img src="{{ url_for('static', filename='assets/img/no-image.png') }}" id="previewImage" alt="" class="img-thumbnail w-100 img-shadow">
                 </div>
                 <div class="mb-3">
                     <label for="fileInput" class="form-label">Choose an image:</label>
                     <input type="file" class="form-control" id="fileInput" name="file" accept=".jpg, .jpeg, .png" required>
                 </div>
+
+                <input type="hidden" name="result_user_id" id="result_user_id">
+
                 <button type="submit" class="btn btn-primary w-100" id="result_submit">Upload and Detect</button>
             </form>
         </div>

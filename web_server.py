@@ -1,4 +1,4 @@
-from database import Unlisted_Images, Contact_Us_Messages, Newsletter_List, User_Accounts, Upload_History, db, app
+from database import Unlisted_Images, Contact_Us_Messages, Newsletter_List, User_Accounts, Upload_History, Church_Details, db, app
 from flask import render_template, request, jsonify, redirect
 from tensorflow.lite.python.interpreter import Interpreter
 from session import Session
@@ -45,21 +45,36 @@ def index():
 
     return template
 
+@app.route('/user_view')
+def user_view():
+    notification = session.get("notification")
+
+    template = render_template('user_view.html', notification=notification)
+    
+    session.unset("notification")
+
+    return template
+
 @app.route('/detect')
 def detect():
     return render_template('detect.html', notification=None)
 
 @app.route('/result', methods=['POST'])
 def result():
+    user_id = request.form["result_user_id"]
     file = request.files['file']
 
     image_path = os.path.join('static/uploads', file.filename)
 
     file.save(image_path)
 
-    detections = perform_detection(image_path, "image_detection")
+    data = Upload_History(user_id=user_id, image_name=str(user_id) + "_" + file.filename)
 
-    return render_template('result.html', image_filename=file.filename, detections=detections, notification=None)
+    data.insert(data)
+
+    detections = perform_detection(image_path, "image_detection", user_id)
+
+    return render_template('result.html', image_filename=str(user_id) + "_" + file.filename, detections=detections, notification=None)
 
 @app.route("/check_connection")
 def check_connection():
@@ -116,6 +131,21 @@ def view_images():
 
     return render_template('view_images.html', filenames=filenames, title=post_image_folder, notification=None)
 
+@app.route("/upload_history")
+def upload_history():
+    user_id = request.args.get("user_id")
+    
+    db = Upload_History()
+
+    data = None
+
+    if user_id == "1":
+        data = db.admin_select()
+    else:
+        data = db.user_select(user_id)
+
+    return render_template('upload_history.html', data=data, notification=None)
+
 @app.route("/archive_folder", methods=["POST"])
 def archive_folder():
     post_image_folder = request.form["archive_folder_folder_name"]
@@ -160,15 +190,6 @@ def update_folder_name():
         session.set("notification", {"title": "Oops...", "text": post_image_folder + " folder is already in the record.", "icon": "error"})
 
     return redirect("/unlisted_images")
-
-@app.route("/view_images_with_detections", methods=["POST"])
-def view_images_with_detections():
-    post_image_folder = request.form["folder_name"]
-    
-    image_folder = 'static/unlisted_images/with_detections/' + post_image_folder
-    filenames = os.listdir(image_folder)
-
-    return render_template('view_images_with_detections.html', filenames=filenames, title=post_image_folder, notification=None)
 
 @app.route('/contact_us_message', methods=['POST'])
 def contact_us_message():
@@ -227,7 +248,7 @@ def register():
 
     hashed_password = db.password_hash(post_password)
 
-    data = User_Accounts(name=post_name, username=post_username, password=hashed_password)
+    data = User_Accounts(name=post_name, username=post_username, password=hashed_password, user_type='student')
 
     data.insert(data)
 
@@ -249,22 +270,32 @@ def login():
 
         if db.password_verify(password, hashed_password):
             session.set("notification", {"title": "Success!", "text": "Welcome, " + user_data.name + "!", "icon": "success"})
+
+            array_user_data = {
+                "id": user_data.id,
+                "name": user_data.name,
+                "username": user_data.username,
+                "password": user_data.password.decode('utf-8'),
+                "user_type": user_data.user_type,
+            }
+
+            return jsonify(array_user_data)
         else:
             session.set("notification", {"title": "Oops...", "text": "Invalid Username or Password.", "icon": "error"})
+
+            return jsonify(False)
     else:
         session.set("notification", {"title": "Oops...", "text": "Invalid Username or Password.", "icon": "error"})
 
-    array_user_data = {
-        "id": user_data.id,
-        "name": user_data.name,
-        "username": user_data.username,
-        "password": user_data.password.decode('utf-8'),
-    }
+        return jsonify(False)
 
-    return jsonify(array_user_data)
+@app.route('/logout', methods=['POST'])
+def logout():
+    session.set("notification", {"title": "Success!", "text": "You had been signed out!", "icon": "success"})
 
-def perform_detection(image_path, page):
-    # ================ Start Image Preprocessing ================ #
+    return jsonify(True)
+
+def perform_detection(image_path, page, user_id):
     image = cv2.imread(image_path)
     image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     imH, imW, _ = image.shape 
@@ -275,65 +306,44 @@ def perform_detection(image_path, page):
 
     if floating_model:
         input_data = (np.float32(input_data) - input_mean) / input_std
-    # ================ End Image Preprocessing ================ #
-
-    # ================ Start Tensorflow Interpreter ================ #
+    
     interpreter.set_tensor(input_details[0]['index'],input_data)
     interpreter.invoke()
-    # ================ Start Tensorflow Interpreter ================ #
-
-    # ================ Start Initialization of Detection Process ================ #
+    
     boxes = interpreter.get_tensor(output_details[boxes_idx]['index'])[0]
     classes = interpreter.get_tensor(output_details[classes_idx]['index'])[0]
     scores = interpreter.get_tensor(output_details[scores_idx]['index'])[0]
-    # ================ End Initialization of Detection Process ================ #
 
-    detections = []
-
-    # ================ Start Detection Process ================ #
     for i in range(len(scores)):
         if ((scores[i] > 0.5) and (scores[i] <= 1.0)):
-            # ================ Start Detect Bounding Boxes of Trained Images ================ #
             ymin = int(max(1,(boxes[i][0] * imH)))
             xmin = int(max(1,(boxes[i][1] * imW)))
             ymax = int(min(imH,(boxes[i][2] * imH)))
             xmax = int(min(imW,(boxes[i][3] * imW)))
-            # ================ End Detect Bounding Boxes of Trained Images ================ #
             
-            # ================ Start Intialize Bounding Box to ROI (Region of Interest) ================ #
             cv2.rectangle(image, (xmin,ymin), (xmax,ymax), (10, 255, 0), 2)
-            # ================ End Intialize Bounding Box to ROI (Region of Interest) ================ #
+            
+            db = Church_Details()
 
-            # ================ Start Intialize Labeling the ROI ================ #
-            object_name = labels[int(classes[i])]
-            label = '%s: %d%%' % (object_name, int(scores[i]*100))
+            model_object_name = labels[int(classes[i])]
+            db_object_name = db.select(model_object_name)
+            object_name = db_object_name.church_name
+            label = '%s' % (object_name)
             labelSize, baseLine = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.7, 2)
             label_ymin = max(ymin, labelSize[1] + 10)
-            # ================ End Intialize Labeling the ROI ================ #
             
-            # ================ Start Labeling to ROI (Region of Interest) ================ #
             cv2.rectangle(image, (xmin, label_ymin-labelSize[1]-10), (xmin+labelSize[0], label_ymin+baseLine-10), (255, 255, 255), cv2.FILLED)
             cv2.putText(image, label, (xmin, label_ymin-7), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 0), 2)
-            # ================ End Labeling to ROI (Region of Interest) ================ #
-
-            # ================ Start Set all detection matrix to "detections" variable to be used in the webpage display ================ #
-            detections.append({'object_name': object_name, 'confidence': int(scores[i] * 100), 'xmin': xmin, 'ymin': ymin, 'xmax': xmax, 'ymax': ymax})
-            # ================ End Set all detection matrix to "detections" variable to be used in the webpage display ================ #
-    # ================ Start Detection Process ================ #
-
+            
     if page == "image_detection":
         base_dir = "static/uploads"
     else:
         base_dir = "static/uploads/temp"
 
-    image_fn = os.path.basename(image_path)
+    image_fn = str(user_id) + "_" + os.path.basename(image_path)
     image_savepath = os.path.join(os.getcwd(), base_dir, image_fn)
 
-    # ================ Start Save Image to the selected folder ================ #
     cv2.imwrite(image_savepath, image)
-    # ================ End Save Image to the selected folder ================ #
-
-    return detections
 
 def copy_image(filename, filepath):
     base_dir = "static/unlisted_images/without_detections"
