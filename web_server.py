@@ -1,4 +1,4 @@
-from database import Unlisted_Images, Contact_Us_Messages, Newsletter_List, db, app
+from database import Unlisted_Images, Contact_Us_Messages, Newsletter_List, User_Accounts, Upload_History, db, app
 from flask import render_template, request, jsonify, redirect
 from tensorflow.lite.python.interpreter import Interpreter
 from session import Session
@@ -206,6 +206,62 @@ def browser_error():
     session.unset("notification")
 
     return template
+
+@app.route('/check_username', methods=['POST'])
+def check_username():
+    post_username = request.form["username"]
+
+    db = User_Accounts()
+
+    is_record_available = db.is_record_available(post_username)
+
+    return jsonify(is_record_available)
+
+@app.route('/register', methods=['POST'])
+def register():
+    post_name = request.form["name"]
+    post_username = request.form["username"]
+    post_password = request.form["password"]
+
+    db = User_Accounts()
+
+    hashed_password = db.password_hash(post_password)
+
+    data = User_Accounts(name=post_name, username=post_username, password=hashed_password)
+
+    data.insert(data)
+
+    session.set("notification", {"title": "Success!", "text": "Your account has been successfully registered into the database.", "icon": "success"})
+
+    return jsonify(True)
+
+@app.route('/login', methods=['POST'])
+def login():
+    username = request.form["username"]
+    password = request.form["password"]
+
+    db = User_Accounts()
+
+    user_data = db.is_record_available(username)
+
+    if user_data:
+        hashed_password = user_data.password
+
+        if db.password_verify(password, hashed_password):
+            session.set("notification", {"title": "Success!", "text": "Welcome, " + user_data.name + "!", "icon": "success"})
+        else:
+            session.set("notification", {"title": "Oops...", "text": "Invalid Username or Password.", "icon": "error"})
+    else:
+        session.set("notification", {"title": "Oops...", "text": "Invalid Username or Password.", "icon": "error"})
+
+    array_user_data = {
+        "id": user_data.id,
+        "name": user_data.name,
+        "username": user_data.username,
+        "password": user_data.password.decode('utf-8'),
+    }
+
+    return jsonify(array_user_data)
 
 def perform_detection(image_path, page):
     # ================ Start Image Preprocessing ================ #

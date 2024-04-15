@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timezone
+import bcrypt
 
 app = Flask(__name__)
 
@@ -91,6 +92,14 @@ class User_Accounts(db.Model):
         return "<User_Accounts %r>" % self.id
     
     @classmethod
+    def password_hash(self, password):
+        return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+    
+    @classmethod
+    def password_verify(self, password, hashed_password):
+        return bcrypt.checkpw(password.encode('utf-8'), hashed_password)
+
+    @classmethod
     def insert(cls, data):
         db.session.add(data)
 
@@ -105,6 +114,15 @@ class User_Accounts(db.Model):
         
         db.session.commit()
 
+    @classmethod
+    def is_record_available(cls, username):
+        data = cls.query.filter_by(username=username).first()
+        
+        if data:
+            return data
+        
+        return False
+    
 class Upload_History(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     date_created = db.Column(db.DateTime, default=datetime.now(timezone.utc))
@@ -116,12 +134,22 @@ class Upload_History(db.Model):
     
     @classmethod
     def select(cls, user_id):
-        data = cls.query.filter_by(user_id=user_id).first()
+        data = cls.query.filter_by(user_id=user_id).all()
         
         if not data:
             return False
         
         return data
 
+def insert_admin_data():
+    if not User_Accounts.is_record_available('admin'):
+        hashed_password = User_Accounts.password_hash("admin123")
+
+        admin_user = User_Accounts(name='Administrator', username='admin', password=hashed_password)
+        
+        User_Accounts.insert(admin_user)
+
 with app.app_context():
     db.create_all()
+
+    insert_admin_data()

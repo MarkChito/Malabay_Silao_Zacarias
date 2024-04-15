@@ -33,7 +33,7 @@
                 <div class="card-body text-white">
                     <p class="text-center">Please login to proceed</p>
                     <div class="form-group mb-3">
-                        <label for="login_username" class="form-label">Username</label>
+                        <label for="login_username">Username</label>
                         <input type="text" class="form-control" id="login_username" required>
                     </div>
                     <div class="form-group mb-1">
@@ -45,7 +45,7 @@
                         <label class="form-check-label" for="login_show_password">Show Password</label>
                     </div>
 
-                    <button type="submit" class="btn btn-primary w-100 mb-2">Login</button>
+                    <button type="submit" class="btn btn-primary w-100 mb-2" id="login_submit">Login</button>
 
                     <span>
                         Need an Account?
@@ -74,10 +74,13 @@
                         <div class="form-group mb-3">
                             <label for="register_username" class="form-label">Username</label>
                             <input type="text" class="form-control" id="register_username" required>
+                            <small class="text-danger d-none" id="error_register_username">Username is already in
+                                use</small>
                         </div>
                         <div class="form-group mb-3">
                             <label for="register_password" class="form-label">Password</label>
                             <input type="password" class="form-control" id="register_password" required>
+                            <small class="text-danger d-none" id="error_register_password">Invalid Password</small>
                         </div>
                         <div class="form-group">
                             <label for="register_confirm_password" class="form-label">Confirm Password</label>
@@ -86,7 +89,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Submit</button>
+                        <button type="submit" class="btn btn-primary" id="register_submit">Submit</button>
                     </div>
                 </form>
             </div>
@@ -100,6 +103,22 @@
 
     <script>
         jQuery(document).ready(function () {
+            var notification = "{{notification}}";
+
+            // if (!isMobileOrTablet()) {
+            //     location.href = "/browser_error";
+            // }
+
+            if (notification != "None") {
+                notification = {
+                    "title": "{{ notification['title'] }}",
+                    "text": "{{ notification['text'] }}",
+                    "icon": "{{ notification['icon'] }}",
+                }
+
+                sweet_alert(notification);
+            }
+
             $("#login_show_password").change(function () {
                 var passwordField = $("#login_password");
                 var passwordFieldType = passwordField.attr("type");
@@ -112,8 +131,160 @@
             })
 
             $("#login_form").submit(function () {
+                const username = $("#login_username").val();
+                const password = $("#login_password").val();
 
+                $("#login_submit").text("Please wait...");
+                $("#login_submit").attr("disabled", true);
+
+                var formData = new FormData();
+
+                formData.append('username', username);
+                formData.append('password', password);
+
+                $.ajax({
+                    url: '/login',
+                    data: formData,
+                    type: 'POST',
+                    dataType: 'JSON',
+                    processData: false,
+                    contentType: false,
+                    success: function (response) {
+                        // location.href = "/";
+
+                        sessionStorage.setItem("user_data", JSON.stringify(response));
+
+                        var item = sessionStorage.getItem('user_data');
+
+                        console.log(item);
+                    },
+                    error: function (_, _, error) {
+                        console.error(error);
+                    }
+                });
             })
+
+            $("#register_form").submit(function () {
+                const name = $("#register_name").val();
+                const username = $("#register_username").val();
+                const password = $("#register_password").val();
+                const confirm_password = $("#register_confirm_password").val();
+
+                var errors = 0;
+
+                if (error_password(password, confirm_password)) {
+                    $("#error_register_password").text(error_password(password, confirm_password));
+                    $("#error_register_password").removeClass("d-none");
+
+                    $("#register_password").addClass("is-invalid");
+                    $("#register_confirm_password").addClass("is-invalid");
+
+                    errors++;
+                }
+
+                if (errors == 0) {
+                    $("#register_submit").text("Please wait...");
+                    $("#register_submit").attr("disabled", true);
+
+                    var formData = new FormData();
+
+                    formData.append('username', username);
+
+                    $.ajax({
+                        url: '/check_username',
+                        data: formData,
+                        type: 'POST',
+                        dataType: 'JSON',
+                        processData: false,
+                        contentType: false,
+                        success: function (response) {
+                            if (!response) {
+                                var formData = new FormData();
+
+                                formData.append('name', name);
+                                formData.append('username', username);
+                                formData.append('password', password);
+
+                                $.ajax({
+                                    url: '/register',
+                                    data: formData,
+                                    type: 'POST',
+                                    dataType: 'JSON',
+                                    processData: false,
+                                    contentType: false,
+                                    success: function (response) {
+                                        location.href = "/";
+                                    },
+                                    error: function (_, _, error) {
+                                        console.error(error);
+                                    }
+                                });
+                            }
+                            else {
+                                $("#error_register_username").text("Username is already in use");
+                                $("#error_register_username").removeClass("d-none");
+                                $("#register_username").addClass("is-invalid");
+
+                                $("#register_submit").removeAttr("disabled");
+                                $("#register_submit").text("Submit");
+                            }
+                        },
+                        error: function (_, _, error) {
+                            console.error(error);
+                        }
+                    });
+                }
+            })
+
+            $("#register_username").keydown(function () {
+                $("#register_username").removeClass("is-invalid");
+                $("#error_register_username").addClass("d-none");
+            })
+
+            $("#register_password").keydown(function () {
+                $("#register_password").removeClass("is-invalid");
+                $("#register_confirm_password").removeClass("is-invalid");
+
+                $("#error_register_password").addClass("d-none");
+            })
+
+            $("#register_confirm_password").keydown(function () {
+                $("#register_password").removeClass("is-invalid");
+                $("#register_confirm_password").removeClass("is-invalid");
+
+                $("#error_register_password").addClass("d-none");
+            })
+
+            function error_password(password, confirm_password) {
+                if (password != confirm_password) {
+                    return "Passwords do not match";
+                } else if (password.length < 8) {
+                    return "Password must be at least 8 digits long";
+                } else {
+                    return false;
+                }
+            }
+
+            function isMobileOrTablet() {
+                var mobileRegex = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i;
+                var tabletRegex = /Tablet|iPad/i;
+
+                var screenWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+
+                if (mobileRegex.test(navigator.userAgent) || (tabletRegex.test(navigator.userAgent) && screenWidth < 1025)) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+
+            function sweet_alert(data) {
+                Swal.fire({
+                    title: data.title,
+                    text: data.text,
+                    icon: data.icon
+                });
+            }
         })
     </script>
 </body>
