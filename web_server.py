@@ -128,13 +128,13 @@ def unregistered_dataset():
 
         image_hasher = Image_Hash()
 
-        image_hash = image_hasher.hash(image_path)
-        hash_dict = image_hasher.load("static/unlisted_images/image_hashes.json")
+        image_hash_1 = image_hasher.hash(image_path)
+        hash_dict_1 = image_hasher.load("static/unlisted_images/image_hashes.json")
+        
+        image_hash_2 = image_hasher.hash(image_path)
+        hash_dict_2 = image_hasher.load("model/image_hashes.json")
 
-        if not image_hasher.verify(image_hash, hash_dict):
-            image_hashes = image_hasher.hash_images_in_folder('static/unlisted_images')
-            image_hasher.save(image_hashes, "static/unlisted_images/image_hashes.json")
-
+        if not image_hasher.verify(image_hash_1, hash_dict_1) and not image_hasher.verify(image_hash_2, hash_dict_2):
             if church_data:
                 session.set("notification", {"title": "Oops...", "text": "This object is already in the dataset.", "icon": "error"})
             else:
@@ -160,6 +160,9 @@ def unregistered_dataset():
                     perform_detection(image_path, "unlisted_images", user_id)
 
                     copy_image_with_detection(object_name, file.filename)
+
+                    image_hashes = image_hasher.hash_images_in_folder('static/unlisted_images/without_detections')
+                    image_hasher.save(image_hashes, "static/unlisted_images/image_hashes.json")
 
                     session.set("notification", {"title": "Success!", "text": "An image has been successfully added to unlisted images.", "icon": "success"})
         else:
