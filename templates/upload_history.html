@@ -19,7 +19,7 @@
         <div class="container">
             <div class="row mt-4">
                 <div class="col-12 mb-5">
-                    <h5>Damage Color Coding</h5>
+                    <h5>Legends</h5>
                     <hr>
                     <span class="d-block mb-1">
                         <div class="d-flex align-items-center">
@@ -30,19 +30,19 @@
                     <span class="d-block mb-1">
                         <div class="d-flex align-items-center">
                             <strong class="me-2">Vegetation Damage:</strong>
-                            <div style="width: 30px; height: 10px; background-color: rgb(255, 0, 0);"></div>
+                            <div style="width: 30px; height: 10px; background-color: rgb(10,12,179);"></div>
                         </div>
                     </span>
                     <span class="d-block mb-1">
                         <div class="d-flex align-items-center">
                             <strong class="me-2">Water Damage or Mold:</strong>
-                            <div style="width: 30px; height: 10px; background-color: rgb(0, 0, 255);"></div>
+                            <div style="width: 30px; height: 10px; background-color: rgb(240,9,3);"></div>
                         </div>
                     </span>
                     <span class="d-block">
                         <div class="d-flex align-items-center">
                             <strong class="me-2">Unfinished Paint:</strong>
-                            <div style="width: 30px; height: 10px; background-color: rgb(255, 255, 0);"></div>
+                            <div style="width: 30px; height: 10px; background-color: rgb(23,246,248);"></div>
                         </div>
                     </span>
                 </div>
@@ -52,7 +52,8 @@
                     <div class="card">
                         <div class="card-header">
                             <img src="{{ url_for('static', filename='uploads/'+ item.image_name +'') }}"
-                                class="card-img-top img-shadow my-1 w-100 clickable_image history_image" alt="{{ item.image_name }}" role="button">
+                                class="card-img-top img-shadow my-1 w-100 clickable_image history_image"
+                                alt="{{ item.image_name }}" role="button">
                         </div>
                         <div class="card-body">
                             <h5>Church Details</h5>
