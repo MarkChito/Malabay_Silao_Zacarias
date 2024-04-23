@@ -191,6 +191,15 @@ class Church_Details(db.Model):
             return data
         
         return False
+    
+    @classmethod
+    def select_church_name(cls, church_name):
+        data = cls.query.filter_by(church_name=church_name).first()
+        
+        if data:
+            return data
+        
+        return False
 
 def insert_admin_data():
     if not User_Accounts.is_record_available('admin'):
@@ -205,7 +214,7 @@ def insert_church_details():
         church_dictionary = {
             "barasoain_church_malolos_bulacan": {
                 "church_code": "barasoain_church_malolos_bulacan",
-                "church_name": "Barasoain Church (Malolos, Bulacan)",
+                "church_name": "Barasoain Church",
                 "location": "Malolos, Bulacan",
                 "building_capacity": "Approximately 1,000 people",
                 "date_built": "1885",
@@ -213,7 +222,7 @@ def insert_church_details():
             },
             "daraga_church_daraga_albay": {
                 "church_code": "daraga_church_daraga_albay",
-                "church_name": "Daraga Church (Daraga, Albay)",
+                "church_name": "Daraga Church",
                 "location": "Daraga, Albay",
                 "building_capacity": "Approximately 500 people",
                 "date_built": "1773",
@@ -221,7 +230,7 @@ def insert_church_details():
             },
             "manaoag_church_manaoag_pangasinan": {
                 "church_code": "manaoag_church_manaoag_pangasinan",
-                "church_name": "Manaoag Church (Manaoag, Pangasinan)",
+                "church_name": "Manaoag Church",
                 "location": "Manaoag, Pangasinan",
                 "building_capacity": "Approximately 2,000 people",
                 "date_built": "1610",
@@ -229,7 +238,7 @@ def insert_church_details():
             },
             "manila_cathedral_church_intramuros_manila": {
                 "church_code": "manila_cathedral_church_intramuros_manila",
-                "church_name": "Manila Cathedral Church (Intramuros, Manila)",
+                "church_name": "Manila Cathedral Church",
                 "location": "Intramuros, Manila",
                 "building_capacity": "Approximately 800 people",
                 "date_built": "1581 (original construction), rebuilt several times since then",
@@ -237,7 +246,7 @@ def insert_church_details():
             },
             "paoay_church_paoay_ilocos_norte": {
                 "church_code": "paoay_church_paoay_ilocos_norte",
-                "church_name": "Paoay Church (Paoay, Ilocos Norte)",
+                "church_name": "Paoay Church",
                 "location": "Paoay, Ilocos Norte",
                 "building_capacity": "Approximately 1,000 people",
                 "date_built": "1704",
@@ -245,7 +254,7 @@ def insert_church_details():
             },
             "quiapo_church_quiapo_manila": {
                 "church_code": "quiapo_church_quiapo_manila",
-                "church_name": "Quiapo Church (Quiapo, Manila)",
+                "church_name": "Quiapo Church",
                 "location": "Quiapo, Manila",
                 "building_capacity": "Approximately 10,000 people",
                 "date_built": "1586 (original construction), rebuilt in 1933",
@@ -253,7 +262,7 @@ def insert_church_details():
             },
             "san_agustin_church_intramuros_manila": {
                 "church_code": "san_agustin_church_intramuros_manila",
-                "church_name": "San Agustin Church (Intramuros, Manila)",
+                "church_name": "San Agustin Church",
                 "location": "Intramuros, Manila",
                 "building_capacity": "Approximately 700 people",
                 "date_built": "1587",
@@ -261,7 +270,7 @@ def insert_church_details():
             },
             "santa_maria_church_santa_maria_ilocos_sur": {
                 "church_code": "santa_maria_church_santa_maria_ilocos_sur",
-                "church_name": "Santa Maria Church (Santa Maria, Ilocos Sur)",
+                "church_name": "Santa Maria Church",
                 "location": "Santa Maria, Ilocos Sur",
                 "building_capacity": "Approximately 1,000 people",
                 "date_built": "1765",
@@ -269,7 +278,7 @@ def insert_church_details():
             },
             "taal_basilica_church_taal_batangas": {
                 "church_code": "taal_basilica_church_taal_batangas",
-                "church_name": "Taal Basilica Church (Taal, Batangas)",
+                "church_name": "Taal Basilica Church",
                 "location": "Taal, Batangas",
                 "building_capacity": "Approximately 2,000 people",
                 "date_built": "1575 (original construction), rebuilt in 1755 after destruction from Taal Volcano eruption",
@@ -277,7 +286,7 @@ def insert_church_details():
             },
             "miagao_church_miagao_iloilo": {
                 "church_code": "miagao_church_miagao_iloilo",
-                "church_name": "Miagao Church (Miagao, Iloilo)",
+                "church_name": "Miagao Church",
                 "location": "Miagao, Iloilo",
                 "building_capacity": "Approximately 800 people",
                 "date_built": "1786",

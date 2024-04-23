@@ -14,7 +14,6 @@ session = Session()
 
 PATH_TO_CKPT = os.path.join(os.getcwd(), "model", "detect.tflite")
 PATH_TO_LABELS = os.path.join(os.getcwd(), "model", "labelmap.txt")
-PATH_TO_HASHED_IMAGES = os.path.join(os.getcwd(), "model", "image_hashes.json")
 
 with open(PATH_TO_LABELS, 'r') as f:
     labels = [line.strip() for line in f.readlines()]
@@ -67,8 +66,14 @@ def result():
     file = request.files['file']
 
     image_path = os.path.join('static/uploads', file.filename)
+    json_path = os.path.join('static/uploads', 'image_hashes.json')
 
     file.save(image_path)
+
+    image_hasher = Image_Hash()
+
+    image_hash = image_hasher.hash(image_path)
+    hash_dict = image_hasher.load(json_path)
 
     church_code = perform_detection(image_path, "image_detection", user_id)
 
@@ -91,9 +96,13 @@ def result():
         date_built = details.date_built
         short_description = details.short_description
 
-    data = Upload_History(user_id=user_id, image_name=image_name, church_name=church_name, location=location, building_capacity=building_capacity, date_built=date_built, short_description=short_description)
+    if not image_hasher.verify(image_hash, hash_dict):
+        image_hashes = image_hasher.hash_images_in_folder('static/uploads')
+        image_hasher.save(image_hashes, json_path)
 
-    data.insert(data)
+        data = Upload_History(user_id=user_id, image_name=image_name, church_name=church_name, location=location, building_capacity=building_capacity, date_built=date_built, short_description=short_description)
+
+        data.insert(data)
 
     return render_template('result.html', image_filename=image_name, church_name=church_name, location=location, building_capacity=building_capacity, date_built=date_built, short_description=short_description, notification=None)
 
@@ -107,41 +116,58 @@ def unregistered_dataset():
         user_id = request.form["list_new_image_user_id"]
         object_name = request.form["list_new_image_object_name"]
         location = request.form["list_new_image_location"]
-        file = request.files['list_new_image_object_image']
+        file = request.files["list_new_image_object_image"]
 
-        my_db = Unlisted_Images()
+        church_details = Church_Details()
 
-        errors = 0
+        church_data = church_details.select_church_name(object_name)
 
-        data = my_db.is_record_available(object_name)
+        image_path = os.path.join('static/uploads/temp', file.filename)
 
-        if data:
-            if data.location != location:
-                errors += 1
+        file.save(image_path)
 
-                session.set("notification", {"title": "Oops...", "text": "This object was initially set to location "+ data.location +". Please contact your develper for assistance.", "icon": "error"})
-        
-        if errors == 0:
-            image_path = os.path.join('static/uploads/temp', file.filename)
+        image_hasher = Image_Hash()
 
-            file.save(image_path)
+        image_hash = image_hasher.hash(image_path)
+        hash_dict = image_hasher.load("static/unlisted_images/image_hashes.json")
 
-            data = Unlisted_Images(user_id=user_id, object_name=object_name, location=location)
+        if not image_hasher.verify(image_hash, hash_dict):
+            image_hashes = image_hasher.hash_images_in_folder('static/unlisted_images')
+            image_hasher.save(image_hashes, "static/unlisted_images/image_hashes.json")
 
-            data.insert(data)
+            if church_data:
+                session.set("notification", {"title": "Oops...", "text": "This object is already in the dataset.", "icon": "error"})
+            else:
+                my_db = Unlisted_Images()
 
-            copy_image(object_name, file.filename)
+                errors = 0
 
-            perform_detection(image_path, "unlisted_images", user_id)
+                data = my_db.is_record_available(object_name)
 
-            copy_image_with_detection(object_name, file.filename)
+                if data:
+                    if data.location != location:
+                        errors += 1
 
-            os.remove(image_path)
+                        session.set("notification", {"title": "Oops...", "text": "This object was initially set to location "+ data.location +". Please contact your develper for assistance.", "icon": "error"})
+                
+                if errors == 0:
+                    data = Unlisted_Images(user_id=user_id, object_name=object_name, location=location)
 
-            session.set("notification", {"title": "Success!", "text": "An image has been successfully added to unlisted images.", "icon": "success"})
+                    data.insert(data)
 
-        return redirect("/unlisted_images")
-    
+                    copy_image(object_name, file.filename)
+
+                    perform_detection(image_path, "unlisted_images", user_id)
+
+                    copy_image_with_detection(object_name, file.filename)
+
+                    session.set("notification", {"title": "Success!", "text": "An image has been successfully added to unlisted images.", "icon": "success"})
+        else:
+            session.set("notification", {"title": "Oops...", "text": "This object is already in the dataset.", "icon": "error"})
+
+        os.remove(image_path)
+
+        return redirect("/unregistered_dataset")
     else:
         data = db.session.query(Unlisted_Images).group_by(Unlisted_Images.object_name).order_by(Unlisted_Images.date_created.desc()).all()
 
@@ -202,7 +228,7 @@ def archive_folder():
 
     session.set("notification", {"title": "Success!", "text": post_image_folder + " folder has been archived.", "icon": "success"})
 
-    return redirect("/unlisted_images")
+    return redirect("/unregistered_dataset")
 
 @app.route("/update_folder_name", methods=["POST"])
 def update_folder_name():
@@ -226,7 +252,7 @@ def update_folder_name():
     else:
         session.set("notification", {"title": "Oops...", "text": post_image_folder + " folder is already in the record.", "icon": "error"})
 
-    return redirect("/unlisted_images")
+    return redirect("/unregistered_dataset")
 
 @app.route('/contact_us_message', methods=['POST'])
 def contact_us_message():
@@ -394,16 +420,7 @@ def perform_detection(image_path, page, user_id):
             if db_object_name:
                 cv2.rectangle(image, (xmin,ymin), (xmax,ymax), (10, 255, 0), 2)
 
-                object_name = db_object_name.church_name
-                label = '%s' % (object_name)
-                labelSize, baseLine = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.7, 2)
-                label_ymin = max(ymin, labelSize[1] + 10)
-                
-                cv2.rectangle(image, (xmin, label_ymin-labelSize[1]-10), (xmin+labelSize[0], label_ymin+baseLine-10), (255, 255, 255), cv2.FILLED)
-                cv2.putText(image, label, (xmin, label_ymin-7), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 0), 2)
-
                 church_code = db_object_name.church_code
-            
             else:
                 if model_object_name == "vegetation_damage":
                     cv2.rectangle(image, (xmin,ymin), (xmax,ymax), (255, 0, 0), 2)

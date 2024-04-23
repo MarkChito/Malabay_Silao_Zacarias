@@ -93,7 +93,7 @@
         <h5 class="modal-title" id="exampleModalLabel">Add New Dataset</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <form action="/unlisted_images" method="POST" enctype="multipart/form-data" id="list_new_image_form">
+      <form action="/unregistered_dataset" method="POST" enctype="multipart/form-data" id="list_new_image_form">
         <div class="modal-body">
           <div class="w-100 text-center">
             <img id="imagePreview" src="{{ url_for('static', filename='assets/img/no-image.png') }}" alt="Image Preview"
@@ -209,9 +209,7 @@
     if (user_data) {
       $("#nav_unlisted_images").attr("href", "/unregistered_dataset?user_id=" + user_data.id);
       $("#nav_upload_history").attr("href", "/upload_history?user_id=" + user_data.id);
-    }
-
-    else {
+    } else {
       location.href = "/invalid_login";
     }
 
@@ -223,7 +221,10 @@
       $("#previewImage").attr("style", "width: 500px; height: 500px;");
 
       $("#div_image_result").attr("style", "width: 500px; height: 500px;");
+      $("#div_upload_functions").attr("style", "width: 500px;");
+      $("#div_upload_functions").removeClass("w-100");
       $(".history_image").attr("style", "width: 100%; height: 250px;");
+      $(".view_images_image").attr("style", "width: 100%; height: 250px;");
     }
 
     if (notification != "None") {
