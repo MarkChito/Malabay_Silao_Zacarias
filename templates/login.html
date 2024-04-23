@@ -22,13 +22,23 @@
 </head>
 
 <body>
+    <!-- Login Form -->
     <form action="javascript:void(0)" id="login_form">
         <div class="login-form">
-            <div class="glass-card card text-white pt-3" style="width: 90%;">
+            <div class="page-loading">
+                <div class="loading-parent">
+                    <div class="loading-container">
+                        <div class="loading"></div>
+                        <div id="loading-text">Loading</div>
+                    </div>
+                </div>
+            </div>
+            <div class="glass-card card text-white pt-3 d-none" style="width: 90%;" id="login_card">
                 <div class="card-header text-center">
                     <img class="mb-3" src="{{ url_for('static', filename='assets/img/favicon.png') }}" alt=""
-                        style="width: 100px; height: 100px;">
-                    <h1 style="font-size: 20px;">Heritage Site Identifier and Damage Assessment App</h1>
+                        style="width: 100px; height: 100px;" id="login_image">
+                    <h1 style="font-size: 20px;" id="login_title">Heritage Site Identifier and Damage Assessment App
+                    </h1>
                 </div>
                 <div class="card-body text-white">
                     <p class="text-center">Please login to proceed</p>
@@ -57,7 +67,7 @@
         </div>
     </form>
 
-    <!--Register Modal -->
+    <!-- Register Modal -->
     <div class="modal fade" id="register_modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -106,7 +116,19 @@
             var notification = "{{notification}}";
 
             if (!isMobileOrTablet()) {
-                location.href = "/browser_error";
+                // location.href = "/browser_error";
+
+                $("#login_card").attr("style", "width: 500px;");
+                $("#login_title").attr("style", "font-size: 30px;");
+                $("#login_image").attr("style", "width: 150px; height: 150px;");
+
+                setTimeout(function () {
+                    $("#login_card").removeClass("d-none");
+                    $(".page-loading").addClass("d-none");
+                }, 1500);
+            } else {
+                $("#login_card").removeClass("d-none");
+                $(".page-loading").addClass("d-none");
             }
 
             if (notification != "None") {
@@ -153,7 +175,7 @@
                         if (response) {
                             sessionStorage.setItem("user_data", JSON.stringify(response));
 
-                            location.href = "/user_view";
+                            location.href = "/home";
                         }
                         else {
                             location.href = "/";
@@ -189,37 +211,20 @@
 
                     var formData = new FormData();
 
+                    formData.append('name', name);
                     formData.append('username', username);
+                    formData.append('password', password);
 
                     $.ajax({
-                        url: '/check_username',
+                        url: '/register',
                         data: formData,
                         type: 'POST',
                         dataType: 'JSON',
                         processData: false,
                         contentType: false,
                         success: function (response) {
-                            if (!response) {
-                                var formData = new FormData();
-
-                                formData.append('name', name);
-                                formData.append('username', username);
-                                formData.append('password', password);
-
-                                $.ajax({
-                                    url: '/register',
-                                    data: formData,
-                                    type: 'POST',
-                                    dataType: 'JSON',
-                                    processData: false,
-                                    contentType: false,
-                                    success: function (response) {
-                                        location.href = "/";
-                                    },
-                                    error: function (_, _, error) {
-                                        console.error(error);
-                                    }
-                                });
+                            if (response) {
+                                location.href = "/";
                             }
                             else {
                                 $("#error_register_username").text("Username is already in use");

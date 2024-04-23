@@ -1,15 +1,3 @@
-<style>
-  .btn-close-red {
-    position: absolute;
-    top: 0;
-    right: 0;
-    z-index: 1050;
-    color: red !important;
-    background-color: transparent;
-    border: none;
-  }
-</style>
-
 <!-- ======= Footer ======= -->
 <footer id="footer">
   <div class="footer-top">
@@ -45,7 +33,7 @@
             <li><i class="bx bx-chevron-right"></i> <a href="#about">About the Project</a></li>
             <li><i class="bx bx-chevron-right"></i> <a href="#contact">Contact</a></li>
             <li><i class="bx bx-chevron-right"></i> <a href="/detect">Image Detection</a></li>
-            <li><i class="bx bx-chevron-right"></i> <a href="/unlisted_images">Unlisted Images</a></li>
+            <li><i class="bx bx-chevron-right"></i> <a href="/unregistered_dataset">Unregistered Dataset</a></li>
           </ul>
         </div>
 
@@ -102,7 +90,7 @@
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">List New Image</h5>
+        <h5 class="modal-title" id="exampleModalLabel">Add New Dataset</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <form action="/unlisted_images" method="POST" enctype="multipart/form-data" id="list_new_image_form">
@@ -216,11 +204,26 @@
 
     var user_data = JSON.parse(sessionStorage.getItem("user_data"));
 
-    $("#nav_unlisted_images").attr("href", "/unlisted_images?user_id=" + user_data.id);
-    $("#nav_upload_history").attr("href", "/upload_history?user_id=" + user_data.id);
+    get_upload_data(user_data.id);
+
+    if (user_data) {
+      $("#nav_unlisted_images").attr("href", "/unregistered_dataset?user_id=" + user_data.id);
+      $("#nav_upload_history").attr("href", "/upload_history?user_id=" + user_data.id);
+    }
+
+    else {
+      location.href = "/invalid_login";
+    }
 
     if (!isMobileOrTablet()) {
-      location.href = "/browser_error";
+      // location.href = "/browser_error";
+
+      $(".centered-items").removeClass("text-center");
+      $("#previewImage").removeClass("w-100");
+      $("#previewImage").attr("style", "width: 500px; height: 500px;");
+
+      $("#div_image_result").attr("style", "width: 500px; height: 500px;");
+      $(".history_image").attr("style", "width: 100%; height: 250px;");
     }
 
     if (notification != "None") {
@@ -233,13 +236,13 @@
       sweet_alert(notification);
     }
 
-    if (path == "detect" || path == "result" || path == "unlisted_images" || path == "view_images" || path == "upload_history") {
+    if (path == "detect" || path == "result" || path == "unregistered_dataset" || path == "view_images" || path == "upload_history") {
       header.classList.remove("header-transparent");
       home.classList.remove("active");
 
-      home.setAttribute("href", "/user_view");
-      about.setAttribute("href", "/user_view#about");
-      contact.setAttribute("href", "/user_view#contact");
+      home.setAttribute("href", "/home");
+      about.setAttribute("href", "/home#about");
+      contact.setAttribute("href", "/home#contact");
     }
     else {
       header.classList.add("header-transparent");
@@ -253,7 +256,7 @@
       contact.setAttribute("href", "#contact");
     }
 
-    if (path == "unlisted_images") {
+    if (path == "unregistered_dataset") {
       detect.classList.remove("active");
       upload_history.classList.remove("active");
       unlisted_images.classList.add("active");
@@ -421,6 +424,29 @@
         }
       });
     })
+
+    function get_upload_data(user_id) {
+      var formData = new FormData();
+
+      formData.append('user_id', user_id);
+
+      $.ajax({
+        url: '/get_upload_data',
+        data: formData,
+        type: 'POST',
+        dataType: 'JSON',
+        processData: false,
+        contentType: false,
+        success: function (response) {
+          if (response) {
+            upload_history.classList.remove("d-none");
+          }
+        },
+        error: function (_, _, error) {
+          console.error(error);
+        }
+      });
+    }
 
     function isMobileOrTablet() {
       var mobileRegex = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i;

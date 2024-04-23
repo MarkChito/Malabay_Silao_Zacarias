@@ -107,16 +107,7 @@ class User_Accounts(db.Model):
         db.session.add(data)
 
         db.session.commit()
-
-    @classmethod
-    def update(cls, old_name, new_name):
-        data = cls.query.filter_by(object_name=old_name).all()
-        
-        for item in data:
-            item.object_name = new_name
-        
-        db.session.commit()
-
+    
     @classmethod
     def is_record_available(cls, username):
         data = cls.query.filter_by(username=username).first()

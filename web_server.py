@@ -1,6 +1,7 @@
 from database import Unlisted_Images, Contact_Us_Messages, Newsletter_List, User_Accounts, Upload_History, Church_Details, db, app
 from flask import render_template, request, jsonify, redirect
 from tensorflow.lite.python.interpreter import Interpreter
+from image_hash import Image_Hash
 from session import Session
 
 import numpy as np
@@ -13,6 +14,7 @@ session = Session()
 
 PATH_TO_CKPT = os.path.join(os.getcwd(), "model", "detect.tflite")
 PATH_TO_LABELS = os.path.join(os.getcwd(), "model", "labelmap.txt")
+PATH_TO_HASHED_IMAGES = os.path.join(os.getcwd(), "model", "image_hashes.json")
 
 with open(PATH_TO_LABELS, 'r') as f:
     labels = [line.strip() for line in f.readlines()]
@@ -45,7 +47,7 @@ def index():
 
     return template
 
-@app.route('/user_view')
+@app.route('/home')
 def user_view():
     notification = session.get("notification")
 
@@ -99,8 +101,8 @@ def result():
 def check_connection():
     return jsonify({'status': '200'})
 
-@app.route('/unlisted_images', methods=["POST", "GET"])
-def unlisted_images():
+@app.route('/unregistered_dataset', methods=["POST", "GET"])
+def unregistered_dataset():
     if request.method == "POST":
         user_id = request.form["list_new_image_user_id"]
         object_name = request.form["list_new_image_object_name"]
@@ -281,15 +283,22 @@ def register():
 
     db = User_Accounts()
 
-    hashed_password = db.password_hash(post_password)
+    response = False
 
-    data = User_Accounts(name=post_name, username=post_username, password=hashed_password, user_type='student')
+    if (not db.is_record_available(post_username)):
+        hashed_password = db.password_hash(post_password)
 
-    data.insert(data)
+        data = User_Accounts(name=post_name, username=post_username, password=hashed_password, user_type='student')
 
-    session.set("notification", {"title": "Success!", "text": "Your account has been successfully registered into the database.", "icon": "success"})
+        data.insert(data)
 
-    return jsonify(True)
+        session.set("notification", {"title": "Success!", "text": "Your account has been successfully registered into the database.", "icon": "success"})
+
+        response = True
+    else:
+        response = False
+
+    return jsonify(response)
 
 @app.route('/login', methods=['POST'])
 def login():
@@ -329,6 +338,25 @@ def logout():
     session.set("notification", {"title": "Success!", "text": "You had been signed out!", "icon": "success"})
 
     return jsonify(True)
+
+@app.route('/invalid_login')
+def invalid_login():
+    session.set("notification", {"title": "Oops...", "text": "You must login first!", "icon": "error"})
+
+    return redirect("/")
+
+@app.route('/get_upload_data', methods=['POST'])
+def get_upload_data():
+    user_id = request.form["user_id"]
+
+    db = Upload_History()
+
+    data = db.user_select(user_id)
+
+    if (data):
+        return jsonify(True)
+    else:
+        return jsonify(False)
 
 def perform_detection(image_path, page, user_id):
     image = cv2.imread(image_path)
