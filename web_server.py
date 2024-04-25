@@ -172,16 +172,18 @@ def unregistered_dataset():
 
         return redirect("/unregistered_dataset")
     else:
-        data = db.session.query(Unlisted_Images).group_by(Unlisted_Images.object_name).order_by(Unlisted_Images.date_created.desc()).all()
+        user_id = request.args.get('user_id')
+        
+        db = Unlisted_Images()
 
-        my_data = None
-
-        if data is not None:
-            my_data = data
+        if user_id == "1":
+            data = db.query.group_by(Unlisted_Images.object_name).order_by(Unlisted_Images.date_created.desc()).all()
+        else:
+            data = db.select_data_by_user(user_id)
         
         notification = session.get("notification")
 
-        template = render_template('unlisted_images.html', data=my_data, notification=notification)
+        template = render_template('unlisted_images.html', data=data, notification=notification)
 
         session.unset("notification")
 
@@ -230,30 +232,6 @@ def archive_folder():
     shutil.move(source_folder_without_detections, destination_folder_without_detections)
 
     session.set("notification", {"title": "Success!", "text": post_image_folder + " folder has been archived.", "icon": "success"})
-
-    return redirect("/unregistered_dataset")
-
-@app.route("/update_folder_name", methods=["POST"])
-def update_folder_name():
-    post_image_folder = request.form["update_folder_name_folder_name"]
-    post_old_image_folder = request.form["update_folder_name_old_folder_name"]
-
-    db = Unlisted_Images()
-
-    is_record_available = False
-
-    if post_image_folder != post_old_image_folder:
-        is_record_available = db.is_record_available(post_image_folder)
-
-    if not is_record_available:
-        db.update(post_old_image_folder, post_image_folder)
-
-        rename_folder(post_old_image_folder, post_image_folder)
-        rename_folder_with_detections(post_old_image_folder, post_image_folder)
-
-        session.set("notification", {"title": "Success!", "text": post_old_image_folder + " folder has been renamed to " + post_image_folder + ".", "icon": "success"})
-    else:
-        session.set("notification", {"title": "Oops...", "text": post_image_folder + " folder is already in the record.", "icon": "error"})
 
     return redirect("/unregistered_dataset")
 

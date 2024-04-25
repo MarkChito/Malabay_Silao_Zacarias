@@ -51,6 +51,15 @@ class Unlisted_Images(db.Model):
             return data
         
         return False
+    
+    @classmethod
+    def select_data_by_user(cls, user_id):
+        data = cls.query.filter_by(user_id=user_id).group_by(Unlisted_Images.object_name).order_by(Unlisted_Images.date_created.desc()).all()
+        
+        if data:
+            return data
+        
+        return False
 
 class Contact_Us_Messages(db.Model):
     id = db.Column(db.Integer, primary_key=True)
