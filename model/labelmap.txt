@@ -11,3 +11,5 @@ miagao_church_miagao_iloilo
 vegetation_damage
 water_damage_or_mold
 unfinished_paint
+crack
+sagging_roof

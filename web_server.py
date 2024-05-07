@@ -419,6 +419,10 @@ def perform_detection(image_path, page, user_id):
                     cv2.rectangle(image, (xmin,ymin), (xmax,ymax), (0, 0, 255), 2)
                 elif model_object_name == "unfinished_paint":
                     cv2.rectangle(image, (xmin,ymin), (xmax,ymax), (255, 255, 0), 2)
+                elif model_object_name == "crack":
+                    cv2.rectangle(image, (xmin,ymin), (xmax,ymax), (125, 0, 125), 2)
+                elif model_object_name == "sagging_roof":
+                    cv2.rectangle(image, (xmin,ymin), (xmax,ymax), (125, 125, 125), 2)
 
     if page == "image_detection":
         base_dir = "static/uploads"
