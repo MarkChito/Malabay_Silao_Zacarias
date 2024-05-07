@@ -207,6 +207,7 @@
     get_upload_data(user_data.id);
 
     if (user_data) {
+      $("#back_to_unregistered_dataset").attr("href", "/unregistered_dataset?user_id=" + user_data.id);
       $("#nav_unlisted_images").attr("href", "/unregistered_dataset?user_id=" + user_data.id);
       $("#nav_upload_history").attr("href", "/upload_history?user_id=" + user_data.id);
     } else {

@@ -59,8 +59,8 @@
 
                     <span>
                         Need an Account?
-                        <a href="#" class="text-light" style="text-decoration: none; font-weight: bolder;"
-                            data-bs-toggle="modal" data-bs-target="#register_modal">Register</a>
+                        <a href="javascript:void(0)" class="text-light"
+                            style="text-decoration: none; font-weight: bolder;" id="btn_register">Register</a>
                     </span>
                 </div>
             </div>
@@ -126,7 +126,8 @@
                     $("#login_card").removeClass("d-none");
                     $(".page-loading").addClass("d-none");
                 }, 1500);
-            } else {
+            }
+            else {
                 $("#login_card").removeClass("d-none");
                 $(".page-loading").addClass("d-none");
             }
@@ -140,6 +141,31 @@
 
                 sweet_alert(notification);
             }
+
+            $("#btn_register").click(function () {
+                $.ajax({
+                    url: '/check_accounts',
+                    type: 'POST',
+                    dataType: 'JSON',
+                    processData: false,
+                    contentType: false,
+                    success: function (response) {
+                        if (response > 1) {
+                            Swal.fire({
+                                title: "Oops...",
+                                text: "Only 1 account is allowed in this server.",
+                                icon: "error"
+                            });
+                        }
+                        else {
+                            $("#register_modal").modal("show");
+                        }
+                    },
+                    error: function (_, _, error) {
+                        console.error(error);
+                    }
+                });
+            })
 
             $("#login_show_password").change(function () {
                 var passwordField = $("#login_password");

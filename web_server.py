@@ -170,7 +170,7 @@ def unregistered_dataset():
 
         os.remove(image_path)
 
-        return redirect("/unregistered_dataset")
+        return redirect("/unregistered_dataset?user_id=" + user_id)
     else:
         user_id = request.args.get('user_id')
         
@@ -180,6 +180,8 @@ def unregistered_dataset():
             data = db.query.group_by(Unlisted_Images.object_name).order_by(Unlisted_Images.date_created.desc()).all()
         else:
             data = db.select_data_by_user(user_id)
+
+            print(user_id)
         
         notification = session.get("notification")
 
@@ -364,6 +366,14 @@ def get_upload_data():
         return jsonify(True)
     else:
         return jsonify(False)
+
+@app.route('/check_accounts', methods=['POST'])
+def check_accounts():
+    db = User_Accounts()
+
+    number_of_acccounts = db.number_of_acccounts()
+
+    return jsonify(number_of_acccounts)
 
 def perform_detection(image_path, page, user_id):
     image = cv2.imread(image_path)

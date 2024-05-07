@@ -126,6 +126,15 @@ class User_Accounts(db.Model):
         
         return False
     
+    @classmethod
+    def number_of_acccounts(cls):
+        data = cls.query.count()
+        
+        if data:
+            return data
+        
+        return False
+    
 class Upload_History(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     date_created = db.Column(db.DateTime, default=datetime.now(timezone.utc))
