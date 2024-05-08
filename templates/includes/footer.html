@@ -31,7 +31,7 @@
           <ul>
             <li><i class="bx bx-chevron-right"></i> <a href="#hero">Home</a></li>
             <li><i class="bx bx-chevron-right"></i> <a href="#about">About the Project</a></li>
-            <li><i class="bx bx-chevron-right"></i> <a href="#contact">Contact</a></li>
+            <li><i class="bx bx-chevron-right"></i> <a href="#contact">Contact Us</a></li>
             <li><i class="bx bx-chevron-right"></i> <a href="/detect">Image Detection</a></li>
             <li><i class="bx bx-chevron-right"></i> <a href="/unregistered_dataset">Unregistered Dataset</a></li>
           </ul>
@@ -50,7 +50,7 @@
         <div class="col-lg-4 col-md-6 footer-newsletter">
           <h4>Our Newsletter</h4>
           <p>Subscribe to get the latest update of the app.</p>
-          <form action="/newsletter_list" method="post" id="newsletter_form">
+          <form action="javascript:void(0)" id="newsletter_form">
             <input type="email" name="newsletter_email" required>
             <input type="submit" id="newsletter_submit" value="Subscribe">
           </form>
@@ -390,8 +390,35 @@
     })
 
     $("#contact_us_form").submit(function () {
+      const name = $("#contact_us_name").val();
+      const email = $("#contact_us_email").val();
+      const subject = $("#contact_us_subject").val();
+      const message = $("#contact_us_message").val();
+
       $("#contact_us_submit").attr("disable", true);
       $("#contact_us_submit").text("Processing...");
+
+      var formData = new FormData();
+
+      formData.append('name', name);
+      formData.append('email', email);
+      formData.append('subject', subject);
+      formData.append('message', message);
+
+      $.ajax({
+        url: '/contact_us_message',
+        data: formData,
+        type: 'POST',
+        dataType: 'JSON',
+        processData: false,
+        contentType: false,
+        success: function (response) {
+          location.href = "/home";
+        },
+        error: function (_, _, error) {
+          console.error(error);
+        }
+      });
     })
 
     $("#update_folder_name_form").submit(function () {
@@ -400,8 +427,29 @@
     })
 
     $("#newsletter_form").submit(function () {
+      const email = $("#newsletter_email").val();
+
       $("#newsletter_submit").attr("disable", true);
       $("#newsletter_submit").val("Processing...");
+
+      var formData = new FormData();
+
+      formData.append('email', email);
+
+      $.ajax({
+        url: '/newsletter_list',
+        data: formData,
+        type: 'POST',
+        dataType: 'JSON',
+        processData: false,
+        contentType: false,
+        success: function (response) {
+          location.href = "/home";
+        },
+        error: function (_, _, error) {
+          console.error(error);
+        }
+      });
     })
 
     $("#nav_logout").click(function () {

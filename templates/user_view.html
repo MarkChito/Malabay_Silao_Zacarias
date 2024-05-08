@@ -5,7 +5,8 @@
             <div class="col-lg-7 pt-5 pt-lg-0 order-2 order-lg-1 d-flex align-items-center">
                 <div data-aos="zoom-out">
                     <h1 class="text-white text-center centered-items">Welcome to our <span>Heritage App</span></h1>
-                    <h2 class="text-center centered-items">Discover, protect, preserve with Heritage App - your guide to safeguarding global heritage.</h2>
+                    <h2 class="text-center centered-items">Discover, protect, preserve with Heritage App - your guide to
+                        safeguarding global heritage.</h2>
                     <div class="text-center text-lg-start centered-items">
                         <a href="/detect" class="btn-get-started">
                             <i class="fa fa-camera me-1"></i>
@@ -118,27 +119,29 @@
                 </div>
 
                 <div class="col-lg-8 mt-5 mt-lg-0" data-aos="fade-left" data-aos-delay="200">
-                    <form action="/contact_us_message" role="form" class="php-email-form" method="post" id="contact_us_form">
+                    <form action="javascript:void(0)" role="form" class="php-email-form" id="contact_us_form">
                         <div class="row">
                             <div class="col-md-6 form-group">
-                                <input type="text" name="contact_us_name" class="form-control" placeholder="Your Name"
+                                <input type="text" id="contact_us_name" class="form-control" placeholder="Your Name"
                                     required>
                             </div>
                             <div class="col-md-6 form-group mt-3 mt-md-0">
-                                <input type="email" class="form-control" name="contact_us_email"
-                                    placeholder="Your Email" required>
+                                <input type="email" class="form-control" id="contact_us_email" placeholder="Your Email"
+                                    required>
                             </div>
                         </div>
                         <div class="form-group mt-3">
-                            <input type="text" class="form-control" name="contact_us_subject" placeholder="Subject"
+                            <input type="text" class="form-control" id="contact_us_subject" placeholder="Subject"
                                 required>
                         </div>
                         <div class="form-group mt-3">
-                            <textarea class="form-control" name="contact_us_message" rows="5" placeholder="Message"
+                            <textarea class="form-control" id="contact_us_message" rows="5" placeholder="Message"
                                 required></textarea>
                         </div>
 
-                        <div class="text-center"><button type="submit" id="contact_us_submit">Send Message</button></div>
+                        <div class="text-center">
+                            <button type="submit" id="contact_us_submit">Send Message</button>
+                        </div>
                     </form>
                 </div>
             </div>

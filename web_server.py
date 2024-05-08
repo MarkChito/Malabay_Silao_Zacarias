@@ -239,10 +239,10 @@ def archive_folder():
 
 @app.route('/contact_us_message', methods=['POST'])
 def contact_us_message():
-    contact_us_name = request.form["contact_us_name"]
-    contact_us_email = request.form["contact_us_email"]
-    contact_us_subject = request.form["contact_us_subject"]
-    contact_us_message = request.form["contact_us_message"]
+    contact_us_name = request.form["name"]
+    contact_us_email = request.form["email"]
+    contact_us_subject = request.form["subject"]
+    contact_us_message = request.form["message"]
 
     data = Contact_Us_Messages(name=contact_us_name, email=contact_us_email, subject=contact_us_subject, message=contact_us_message)
     
@@ -250,11 +250,11 @@ def contact_us_message():
 
     session.set("notification", {"title": "Success!", "text": "Your message has been sent!", "icon": "success"})
 
-    return redirect("/#contact")
+    return jsonify(True)
 
 @app.route('/newsletter_list', methods=['POST'])
 def newsletter_list():
-    newsletter_email = request.form["newsletter_email"]
+    newsletter_email = request.form["email"]
 
     data = Newsletter_List(email=newsletter_email)
     
@@ -262,7 +262,7 @@ def newsletter_list():
 
     session.set("notification", {"title": "Success!", "text": "Thank you for subscribing to our newsletter.", "icon": "success"})
 
-    return redirect("/#contact")
+    return jsonify(True)
 
 @app.route('/browser_error')
 def browser_error():
