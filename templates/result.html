@@ -24,44 +24,58 @@
                     </div>
                 </div>
                 <div class="col-12 mb-5">
-                    <h5>Legends</h5>
+                    <h5>Damage Assessment</h5>
                     <hr>
-                    <span class="d-block mb-1">
-                        <div class="d-flex align-items-center">
-                            <strong class="me-2">Church Name:</strong>
-                            <div style="width: 30px; height: 10px; background-color: rgb(10, 255, 0);"></div>
-                        </div>
-                    </span>
-                    <span class="d-block mb-1">
-                        <div class="d-flex align-items-center">
-                            <strong class="me-2">Vegetation Damage:</strong>
-                            <div style="width: 30px; height: 10px; background-color: rgb(10,12,179);"></div>
-                        </div>
-                    </span>
-                    <span class="d-block mb-1">
-                        <div class="d-flex align-items-center">
-                            <strong class="me-2">Water Damage or Mold:</strong>
-                            <div style="width: 30px; height: 10px; background-color: rgb(240,9,3);"></div>
-                        </div>
-                    </span>
-                    <span class="d-block">
-                        <div class="d-flex align-items-center">
-                            <strong class="me-2">Unfinished Paint:</strong>
-                            <div style="width: 30px; height: 10px; background-color: rgb(23,246,248);"></div>
-                        </div>
-                    </span>
-                    <span class="d-block">
-                        <div class="d-flex align-items-center">
-                            <strong class="me-2">Crack:</strong>
-                            <div style="width: 30px; height: 10px; background-color: rgb(129,14,128);"></div>
-                        </div>
-                    </span>
-                    <span class="d-block">
-                        <div class="d-flex align-items-center">
-                            <strong class="me-2">Sagging Roof:</strong>
-                            <div style="width: 30px; height: 10px; background-color: rgb(0,0,0);"></div>
-                        </div>
-                    </span>
+                    {% if result["vegetation_damage"] > 0 or result["water_damage_or_mold"] > 0 or result["unfinished_paint"] > 0 or result["crack"] > 0 or result["sagging_roof"] > 0 %}
+                        {% if result["vegetation_damage"] > 0 %}
+                            <!-- Vegetation Damage -->
+                            <span class="d-block mb-1">
+                                <div class="d-flex align-items-center">
+                                    <strong class="me-2">Vegetation Damage:</strong>
+                                    {{ result["vegetation_damage"] }} count{% if result["vegetation_damage"] > 1 %}s{% endif %}
+                                </div>
+                            </span>
+                        {% endif %}
+                        {% if result["water_damage_or_mold"] > 0 %}
+                            <!-- Water Damage or Mold -->
+                            <span class="d-block mb-1">
+                                <div class="d-flex align-items-center">
+                                    <strong class="me-2">Water Damage or Mold:</strong>
+                                    {{ result["water_damage_or_mold"] }} count{% if result["water_damage_or_mold"] > 1 %}s{% endif %}
+                                </div>
+                            </span>
+                        {% endif %}
+                        {% if result["unfinished_paint"] > 0 %}
+                            <!-- Unfinished Paint -->
+                            <span class="d-block mb-1">
+                                <div class="d-flex align-items-center">
+                                    <strong class="me-2">Unfinished Paint:</strong>
+                                    {{ result["unfinished_paint"] }} count{% if result["unfinished_paint"] > 1 %}s{% endif %}
+                                </div>
+                            </span>
+                        {% endif %}
+                        {% if result["crack"] > 0 %}
+                            <!-- Crack -->
+                            <span class="d-block mb-1">
+                                <div class="d-flex align-items-center">
+                                    <strong class="me-2">Crack:</strong>
+                                    {{ result["crack"] }} count{% if result["crack"] > 1 %}s{% endif %}
+                                </div>
+                            </span>
+                        {% endif %}
+                        {% if result["sagging_roof"] > 0 %}
+                            <!-- Sagging Roof -->
+                            <span class="d-block mb-1">
+                                <div class="d-flex align-items-center">
+                                    <strong class="me-2">Sagging Roof:</strong>
+                                    {{ result["sagging_roof"] }} count{% if result["sagging_roof"] > 1 %}s{% endif %}
+                                </div>
+                            </span>
+                        {% endif %}
+                    {% else %}
+                        <h1 class="text-muted text-center">No Damage Detected</h1>
+                    {% endif %}
+
                 </div>
                 <div class="col-12 mb-3">
                     <h5>Church Details</h5>

@@ -1,10 +1,13 @@
 from database import Unlisted_Images, Contact_Us_Messages, Newsletter_List, User_Accounts, Upload_History, Church_Details, db, app
 from flask import render_template, request, jsonify, redirect
 from tensorflow.lite.python.interpreter import Interpreter
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 from image_hash import Image_Hash
 from session import Session
 
 import numpy as np
+import smtplib
 import difflib
 import shutil
 import cv2
@@ -75,7 +78,7 @@ def result():
     image_hash = image_hasher.hash(image_path)
     hash_dict = image_hasher.load(json_path)
 
-    church_code = perform_detection(image_path, "image_detection", user_id)
+    result_detection = perform_detection(image_path, "image_detection", user_id)
 
     image_name = str(user_id) + "_" + file.filename
 
@@ -85,10 +88,10 @@ def result():
     date_built = "None"
     short_description = "None"
 
-    if church_code:
+    if result_detection:
         church_data = Church_Details()
 
-        details = church_data.select(church_code)
+        details = church_data.select(result_detection["church_code"])
 
         church_name = details.church_name
         location = details.location
@@ -96,15 +99,33 @@ def result():
         date_built = details.date_built
         short_description = details.short_description
 
-    if not image_hasher.verify(image_hash, hash_dict):
-        image_hashes = image_hasher.hash_images_in_folder('static/uploads')
-        image_hasher.save(image_hashes, json_path)
+    db_user_data = User_Accounts()
 
-        data = Upload_History(user_id=user_id, image_name=image_name, church_name=church_name, location=location, building_capacity=building_capacity, date_built=date_built, short_description=short_description)
+    user_data = db_user_data.get_user_data(user_id)
 
-        data.insert(data)
+    receiver_email = user_data.email
+    subject = "Detection Results"
+    message = "<!DOCTYPE html><html lang='en'><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width, initial-scale=1.0'></head><body><h1 style='text-align: center;'>Detection Results</h1><h2>Damage Assessment</h2><hr><p><strong>Vegetation Damage:</strong><span> "+ str(result_detection["vegetation_damage"]) +"</span></p><p><strong>Water Damage or Mold:</strong><span> "+ str(result_detection["water_damage_or_mold"]) +"</span></p><p><strong>Unfinished Paint:</strong><span> "+ str(result_detection["unfinished_paint"]) +"</span></p><p><strong>Crack:</strong><span> "+ str(result_detection["crack"]) +"</span></p><p><strong>Sagging Roof:</strong><span> "+ str(result_detection["sagging_roof"]) +"</span></p><br><h2>Church Details</h2><hr><p><strong>Church Name:</strong><span> "+ church_name +"</span></p><p><strong>Location:</strong><span> "+ location +"</span></p><p><strong>Building Capacity:</strong><span> "+ building_capacity +"</span></p><p><strong>Date Built:</strong><span> "+ date_built +"</span></p><p><strong>Short Description:</strong><span> "+ short_description +"</span></p></body></html>"
 
-    return render_template('result.html', image_filename=image_name, church_name=church_name, location=location, building_capacity=building_capacity, date_built=date_built, short_description=short_description, notification=None)
+    if send_email(receiver_email, subject, message):
+        if not image_hasher.verify(image_hash, hash_dict):
+            image_hashes = image_hasher.hash_images_in_folder('static/uploads')
+            image_hasher.save(image_hashes, json_path)
+
+            data = Upload_History(user_id=user_id, image_name=image_name, church_name=church_name, location=location, building_capacity=building_capacity, date_built=date_built, short_description=short_description)
+
+            data.insert(data)
+
+    else:
+        session.set("notification", {"title": "Oops...", "text": "The system detected the image but cannot send email. Please check your internet connection.", "icon": "error"})
+
+    notification = session.get("notification")
+
+    template = render_template('result.html', result=result_detection, image_filename=image_name, church_name=church_name, location=location, building_capacity=building_capacity, date_built=date_built, short_description=short_description, notification=notification)
+    
+    session.unset("notification")
+
+    return template
 
 @app.route("/check_connection")
 def check_connection():
@@ -287,6 +308,7 @@ def check_username():
 @app.route('/register', methods=['POST'])
 def register():
     post_name = request.form["name"]
+    post_email = request.form["email"]
     post_username = request.form["username"]
     post_password = request.form["password"]
 
@@ -297,7 +319,7 @@ def register():
     if (not db.is_record_available(post_username)):
         hashed_password = db.password_hash(post_password)
 
-        data = User_Accounts(name=post_name, username=post_username, password=hashed_password, user_type='student')
+        data = User_Accounts(name=post_name, email=post_email, username=post_username, password=hashed_password, user_type='student')
 
         data.insert(data)
 
@@ -395,6 +417,11 @@ def perform_detection(image_path, page, user_id):
     scores = interpreter.get_tensor(output_details[scores_idx]['index'])[0]
 
     church_code = None
+    vegetation_damage = 0
+    water_damage_or_mold = 0
+    unfinished_paint = 0
+    crack = 0
+    sagging_roof = 0
 
     for i in range(len(scores)):
         if ((scores[i] > 0.5) and (scores[i] <= 1.0)):
@@ -412,17 +439,45 @@ def perform_detection(image_path, page, user_id):
                 cv2.rectangle(image, (xmin,ymin), (xmax,ymax), (10, 255, 0), 2)
 
                 church_code = db_object_name.church_code
+
+                object_name = db_object_name.church_name
             else:
                 if model_object_name == "vegetation_damage":
                     cv2.rectangle(image, (xmin,ymin), (xmax,ymax), (255, 0, 0), 2)
+
+                    object_name = "Vegitation Damage"
+                    
+                    vegetation_damage += 1
                 elif model_object_name == "water_damage_or_mold":
                     cv2.rectangle(image, (xmin,ymin), (xmax,ymax), (0, 0, 255), 2)
+
+                    object_name = "Water Damage or Mold"
+
+                    water_damage_or_mold += 1
                 elif model_object_name == "unfinished_paint":
                     cv2.rectangle(image, (xmin,ymin), (xmax,ymax), (255, 255, 0), 2)
+
+                    object_name = "Unfinished Paint"
+
+                    unfinished_paint += 1
                 elif model_object_name == "crack":
                     cv2.rectangle(image, (xmin,ymin), (xmax,ymax), (125, 0, 125), 2)
+
+                    object_name = "Crack"
+
+                    crack += 1
                 elif model_object_name == "sagging_roof":
                     cv2.rectangle(image, (xmin,ymin), (xmax,ymax), (0, 0, 0), 2)
+
+                    object_name = "Sagging Roof"
+
+                    sagging_roof += 1
+            
+            label = '%s' % (object_name)
+            labelSize, baseLine = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.7, 2) # Get font size
+            label_ymin = max(ymin, labelSize[1] + 10) # Make sure not to draw label too close to top of window
+            cv2.rectangle(image, (xmin, label_ymin-labelSize[1]-10), (xmin+labelSize[0], label_ymin+baseLine-10), (255, 255, 255), cv2.FILLED) # Draw white box to put label text in
+            cv2.putText(image, label, (xmin, label_ymin-7), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 0), 2) # Draw label text
 
     if page == "image_detection":
         base_dir = "static/uploads"
@@ -437,7 +492,16 @@ def perform_detection(image_path, page, user_id):
 
     cv2.imwrite(image_savepath, image)
 
-    return church_code
+    data = {
+        "church_code": church_code,
+        "vegetation_damage": vegetation_damage,
+        "water_damage_or_mold": water_damage_or_mold,
+        "unfinished_paint": unfinished_paint,
+        "crack": crack,
+        "sagging_roof": sagging_roof,
+    }
+
+    return data
 
 def copy_image(filename, filepath):
     base_dir = "static/unlisted_images/without_detections"
@@ -533,6 +597,26 @@ def rename_folder_with_detections(old_folder_name, new_folder_name):
                 os.rename(folder_path, new_folder_path)
 
                 return
+
+def send_email(receiver_email, subject, message, sender_name="Heritage App", sender_email="00forloop23@gmail.com", smtp_server="smtp.gmail.com", smtp_port=587, smtp_username="00forloop23@gmail.com", smtp_password="dozadxbkuiszhpzn"):
+    try:
+        msg = MIMEMultipart()
+        msg['From'] = f'{sender_name} <{sender_email}>'
+        msg['To'] = receiver_email
+        msg['Subject'] = subject
+
+        msg.attach(MIMEText(message, 'html'))
+
+        server = smtplib.SMTP(smtp_server, smtp_port)
+
+        server.starttls()
+        server.login(smtp_username, smtp_password)
+        server.sendmail(sender_email, receiver_email, msg.as_string())
+        server.quit()
+
+        return True
+    except Exception as e:
+        return False
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=3000, debug=True)

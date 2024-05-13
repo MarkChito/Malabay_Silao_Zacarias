@@ -96,6 +96,7 @@ class User_Accounts(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     date_created = db.Column(db.DateTime, default=datetime.now(timezone.utc))
     name = db.Column(db.String(255), nullable=False)
+    email = db.Column(db.String(255), nullable=False)
     username = db.Column(db.String(255), nullable=False)
     password = db.Column(db.String(255), nullable=False)
     user_type = db.Column(db.String(255), nullable=False)
@@ -120,6 +121,15 @@ class User_Accounts(db.Model):
     @classmethod
     def is_record_available(cls, username):
         data = cls.query.filter_by(username=username).first()
+        
+        if data:
+            return data
+        
+        return False
+    
+    @classmethod
+    def get_user_data(cls, user_id):
+        data = cls.query.filter_by(id=user_id).first()
         
         if data:
             return data
@@ -223,7 +233,7 @@ def insert_admin_data():
     if not User_Accounts.is_record_available('admin'):
         hashed_password = User_Accounts.password_hash("admin123")
 
-        admin_user = User_Accounts(name='Administrator', username='admin', password=hashed_password, user_type='admin')
+        admin_user = User_Accounts(name='Administrator', email="test@gmail.com", username='admin', password=hashed_password, user_type='admin')
         
         User_Accounts.insert(admin_user)
 
