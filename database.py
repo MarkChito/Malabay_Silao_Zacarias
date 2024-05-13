@@ -2,6 +2,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timezone
 import bcrypt
+import pytz
 
 app = Flask(__name__)
 
@@ -11,7 +12,7 @@ db = SQLAlchemy(app)
 
 class Unlisted_Images(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    date_created = db.Column(db.DateTime, default=datetime.now(timezone.utc))
+    date_created = db.Column(db.DateTime, default=datetime.now(pytz.timezone('Asia/Manila')))
     user_id = db.Column(db.Integer, nullable=False)
     object_name = db.Column(db.String(255), nullable=False)
     location = db.Column(db.String(255), nullable=False)
@@ -63,7 +64,7 @@ class Unlisted_Images(db.Model):
 
 class Contact_Us_Messages(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    date_created = db.Column(db.DateTime, default=datetime.now(timezone.utc))
+    date_created = db.Column(db.DateTime, default=datetime.now(pytz.timezone('Asia/Manila')))
     name = db.Column(db.String(255), nullable=False)
     email = db.Column(db.String(255), nullable=False)
     subject = db.Column(db.String(255), nullable=False)
@@ -78,9 +79,33 @@ class Contact_Us_Messages(db.Model):
 
         db.session.commit()
 
+class Log_Transactons(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    date_created = db.Column(db.DateTime, default=datetime.now(pytz.timezone('Asia/Manila')))
+    name = db.Column(db.String(255), nullable=False)
+    log = db.Column(db.Text, nullable=False)
+    
+    def __repr__(self):
+        return "<Log_Transactons %r>" % self.id
+    
+    @classmethod
+    def insert(cls, data):
+        db.session.add(data)
+
+        db.session.commit()
+
+    @classmethod
+    def select(cls):
+        data = cls.query.order_by(cls.date_created.desc()).all()
+        
+        if not data:
+            return False
+        
+        return data
+
 class Newsletter_List(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    date_created = db.Column(db.DateTime, default=datetime.now(timezone.utc))
+    date_created = db.Column(db.DateTime, default=datetime.now(pytz.timezone('Asia/Manila')))
     email = db.Column(db.String(255), nullable=False)
     
     def __repr__(self):
@@ -94,7 +119,7 @@ class Newsletter_List(db.Model):
 
 class User_Accounts(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    date_created = db.Column(db.DateTime, default=datetime.now(timezone.utc))
+    date_created = db.Column(db.DateTime, default=datetime.now(pytz.timezone('Asia/Manila')))
     name = db.Column(db.String(255), nullable=False)
     email = db.Column(db.String(255), nullable=False)
     username = db.Column(db.String(255), nullable=False)
@@ -147,7 +172,7 @@ class User_Accounts(db.Model):
     
 class Upload_History(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    date_created = db.Column(db.DateTime, default=datetime.now(timezone.utc))
+    date_created = db.Column(db.DateTime, default=datetime.now(pytz.timezone('Asia/Manila')))
     user_id = db.Column(db.Integer, nullable=False)
     image_name = db.Column(db.String(255), nullable=False)
     church_name = db.Column(db.String(255), nullable=False)
@@ -185,7 +210,7 @@ class Upload_History(db.Model):
 
 class Church_Details(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    date_created = db.Column(db.DateTime, default=datetime.now(timezone.utc))
+    date_created = db.Column(db.DateTime, default=datetime.now(pytz.timezone('Asia/Manila')))
     church_code = db.Column(db.String(255), nullable=False)
     church_name = db.Column(db.String(255), nullable=False)
     location = db.Column(db.String(255), nullable=False)

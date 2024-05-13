@@ -1,4 +1,4 @@
-from database import Unlisted_Images, Contact_Us_Messages, Newsletter_List, User_Accounts, Upload_History, Church_Details, db, app
+from database import Unlisted_Images, Contact_Us_Messages, Newsletter_List, User_Accounts, Upload_History, Church_Details, Log_Transactons, db, app
 from flask import render_template, request, jsonify, redirect
 from tensorflow.lite.python.interpreter import Interpreter
 from email.mime.multipart import MIMEMultipart
@@ -63,6 +63,14 @@ def user_view():
 def detect():
     return render_template('detect.html', notification=None)
 
+@app.route('/transaction_logs')
+def transaction_logs():
+    db = Log_Transactons()
+
+    transaction_logs = db.select()
+
+    return render_template('transaction_logs.html', data=transaction_logs, notification=None)
+
 @app.route('/result', methods=['POST'])
 def result():
     user_id = request.form["result_user_id"]
@@ -103,6 +111,7 @@ def result():
 
     user_data = db_user_data.get_user_data(user_id)
 
+    user_name = user_data.name
     receiver_email = user_data.email
     subject = "Detection Results"
     message = "<!DOCTYPE html><html lang='en'><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width, initial-scale=1.0'></head><body><h1 style='text-align: center;'>Detection Results</h1><h2>Damage Assessment</h2><hr><p><strong>Vegetation Damage:</strong><span> "+ str(result_detection["vegetation_damage"]) +"</span></p><p><strong>Water Damage or Mold:</strong><span> "+ str(result_detection["water_damage_or_mold"]) +"</span></p><p><strong>Unfinished Paint:</strong><span> "+ str(result_detection["unfinished_paint"]) +"</span></p><p><strong>Crack:</strong><span> "+ str(result_detection["crack"]) +"</span></p><p><strong>Sagging Roof:</strong><span> "+ str(result_detection["sagging_roof"]) +"</span></p><br><h2>Church Details</h2><hr><p><strong>Church Name:</strong><span> "+ church_name +"</span></p><p><strong>Location:</strong><span> "+ location +"</span></p><p><strong>Building Capacity:</strong><span> "+ building_capacity +"</span></p><p><strong>Date Built:</strong><span> "+ date_built +"</span></p><p><strong>Short Description:</strong><span> "+ short_description +"</span></p></body></html>"
@@ -118,6 +127,11 @@ def result():
 
     else:
         session.set("notification", {"title": "Oops...", "text": "The system detected the image but cannot send email. Please check your internet connection.", "icon": "error"})
+
+    user_name = user_data.name
+
+    logs = Log_Transactons(name=user_name, log=""+ user_name +" uploaded and detected an image.")
+    logs.insert(logs)
 
     notification = session.get("notification")
 
@@ -191,6 +205,12 @@ def unregistered_dataset():
 
         os.remove(image_path)
 
+        db_user_data = User_Accounts()
+        user_data = db_user_data.get_user_data(user_id)
+        user_name = user_data.name
+        logs = Log_Transactons(name=user_name, log=""+ user_name +" added a new church.")
+        logs.insert(logs)
+
         return redirect("/unregistered_dataset?user_id=" + user_id)
     else:
         user_id = request.args.get('user_id')
@@ -254,6 +274,12 @@ def archive_folder():
     shutil.move(source_folder_with_detections, destination_folder_with_detections)
     shutil.move(source_folder_without_detections, destination_folder_without_detections)
 
+    db_user_data = User_Accounts()
+    user_data = db_user_data.get_user_data(1)
+    user_name = user_data.name
+    logs = Log_Transactons(name=user_name, log=""+ user_name +" archived a church.")
+    logs.insert(logs)
+
     session.set("notification", {"title": "Success!", "text": post_image_folder + " folder has been archived.", "icon": "success"})
 
     return redirect("/unregistered_dataset")
@@ -271,6 +297,10 @@ def contact_us_message():
 
     session.set("notification", {"title": "Success!", "text": "Your message has been sent!", "icon": "success"})
 
+    user_name = contact_us_name
+    logs = Log_Transactons(name=user_name, log=""+ user_name +" submitted a message to the system.")
+    logs.insert(logs)
+
     return jsonify(True)
 
 @app.route('/newsletter_list', methods=['POST'])
@@ -282,6 +312,10 @@ def newsletter_list():
     data.insert(data)
 
     session.set("notification", {"title": "Success!", "text": "Thank you for subscribing to our newsletter.", "icon": "success"})
+
+    user_name = newsletter_email
+    logs = Log_Transactons(name=user_name, log=""+ user_name +" subscribes to our email list.")
+    logs.insert(logs)
 
     return jsonify(True)
 
@@ -329,6 +363,10 @@ def register():
     else:
         response = False
 
+    user_name = post_name
+    logs = Log_Transactons(name=user_name, log=""+ user_name +" just created an account.")
+    logs.insert(logs)
+
     return jsonify(response)
 
 @app.route('/login', methods=['POST'])
@@ -354,6 +392,12 @@ def login():
                 "user_type": user_data.user_type,
             }
 
+            db_user_data = User_Accounts()
+            user_data = db_user_data.get_user_data(user_data.id)
+            user_name = user_data.name
+            logs = Log_Transactons(name=user_name, log=""+ user_name +" logged in to the system.")
+            logs.insert(logs)
+
             return jsonify(array_user_data)
         else:
             session.set("notification", {"title": "Oops...", "text": "Invalid Username or Password.", "icon": "error"})
@@ -366,7 +410,15 @@ def login():
 
 @app.route('/logout', methods=['POST'])
 def logout():
+    user_id = request.form["user_id"]
+
     session.set("notification", {"title": "Success!", "text": "You had been signed out!", "icon": "success"})
+
+    db_user_data = User_Accounts()
+    user_data = db_user_data.get_user_data(user_id)
+    user_name = user_data.name
+    logs = Log_Transactons(name=user_name, log=""+ user_name +" logged out from the system.")
+    logs.insert(logs)
 
     return jsonify(True)
 

@@ -32,8 +32,6 @@
             <li><i class="bx bx-chevron-right"></i> <a href="#hero">Home</a></li>
             <li><i class="bx bx-chevron-right"></i> <a href="#about">About the Project</a></li>
             <li><i class="bx bx-chevron-right"></i> <a href="#contact">Contact Us</a></li>
-            <li><i class="bx bx-chevron-right"></i> <a href="/detect">Image Detection</a></li>
-            <li><i class="bx bx-chevron-right"></i> <a href="/unregistered_dataset">Unregistered Dataset</a></li>
           </ul>
         </div>
 
@@ -90,7 +88,7 @@
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Add New Dataset</h5>
+        <h5 class="modal-title" id="exampleModalLabel">Register a Church</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <form action="/unregistered_dataset" method="POST" enctype="multipart/form-data" id="list_new_image_form">
@@ -184,6 +182,7 @@
     var detect = document.getElementById("nav_detect");
     var upload_history = document.getElementById("nav_upload_history");
     var unlisted_images = document.getElementById("nav_unlisted_images");
+    var transaction_logs = document.getElementById("nav_transaction_logs");
 
     var imageInput = document.getElementById("fileInput");
     var previewImage = document.getElementById("previewImage");
@@ -208,6 +207,7 @@
 
     if (user_data.id == 1) {
       upload_history.classList.remove("d-none");
+      transaction_logs.classList.remove("d-none");
     }
 
     if (user_data) {
@@ -242,7 +242,7 @@
       sweet_alert(notification);
     }
 
-    if (path == "detect" || path == "result" || path == "unregistered_dataset" || path == "view_images" || path == "upload_history") {
+    if (path == "transaction_logs" || path == "detect" || path == "result" || path == "unregistered_dataset" || path == "view_images" || path == "upload_history") {
       header.classList.remove("header-transparent");
       home.classList.remove("active");
 
@@ -256,6 +256,7 @@
       detect.classList.remove("active");
       unlisted_images.classList.remove("active");
       upload_history.classList.remove("active");
+      transaction_logs.classList.remove("active");
 
       home.setAttribute("href", "#hero");
       about.setAttribute("href", "#about");
@@ -265,6 +266,7 @@
     if (path == "unregistered_dataset") {
       detect.classList.remove("active");
       upload_history.classList.remove("active");
+      transaction_logs.classList.remove("active");
       unlisted_images.classList.add("active");
 
       list_new_image_user_id.value = user_data.id;
@@ -290,6 +292,7 @@
       detect.classList.add("active");
       unlisted_images.classList.remove("active");
       upload_history.classList.remove("active");
+      transaction_logs.classList.remove("active");
 
       result_user_id.value = user_data.id;
 
@@ -321,6 +324,14 @@
       detect.classList.remove("active");
       unlisted_images.classList.remove("active");
       upload_history.classList.add("active");
+      transaction_logs.classList.remove("active");
+    }
+    
+    if (path == "transaction_logs") {
+      detect.classList.remove("active");
+      unlisted_images.classList.remove("active");
+      transaction_logs.classList.add("active");
+      upload_history.classList.remove("active");
     }
 
     if (path == "result") {
@@ -457,8 +468,11 @@
     })
 
     $("#nav_logout").click(function () {
+      const user_id = user_data.id;
+
       var formData = new FormData();
 
+      formData.append('user_id', user_id);
       formData.append('logout', true);
 
       $.ajax({

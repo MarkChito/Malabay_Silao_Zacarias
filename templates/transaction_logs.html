@@ -1,0 +1,48 @@
+{% include 'includes/header.html' %}
+<main id="main">
+    <!-- ======= Breadcrumbs Section ======= -->
+    <section class="breadcrumbs">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2>Transaction Logs</h2>
+                <ol>
+                    <li><a href="/home">Home</a></li>
+                    <li>Transaction Logs</li>
+                </ol>
+            </div>
+        </div>
+    </section>
+    <!-- End Breadcrumbs Section -->
+
+    <section class="inner-page py-4">
+        <div class="container">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">Date</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Logs</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if data %}
+                    {% for single_data in data %}
+                    <tr>
+                        <td>{{ single_data.date_created.strftime('%B %d, %Y %I:%M %p') }}</td>
+                        <td>{{ single_data.name }}</td>
+                        <td>{{ single_data.log }}</td>
+                    </tr>
+                    {% endfor %}
+                    {% else %}
+                    <tr>
+                        <th class="text-center text-muted" colspan="3">
+                            <h1 class="py-5">No Data Available</h1>
+                        </th>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+{% include 'includes/footer.html' %}
